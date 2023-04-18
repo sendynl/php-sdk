@@ -1,0 +1,92 @@
+name: Code quality
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  install_dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache composer directory
+      id: cache-composer
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-vendor-directory
+      with:
+        path: vendor
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+  lint:
+    needs: [ install_dependencies ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache composer directory
+        id: cache-composer
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-vendor-directory
+        with:
+          path: vendor
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-composer.outputs.cache-hit != 'true' }}
+        name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Analyze the code formatting
+        run: composer run-script lint
+
+  analyze:
+    runs-on: ubuntu-latest
+
+    needs: [ install_dependencies ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache composer directory
+        id: cache-composer
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-vendor-directory
+        with:
+          path: vendor
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-composer.outputs.cache-hit != 'true' }}
+        name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run static analysis
+        run: composer run-script analyze
