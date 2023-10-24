@@ -88,16 +88,15 @@ $connection->setOauthClient(true);
 $connection->setClientId('your-client-id')
     ->setClientSecret('your-client-secret')
     ->setRedirectUrl('your-callback-url');
-    
-$tokenUpdateCallback = function (\Sendy\Api\Connection $connection) {
-    $data = [
-        'access_token' => $connection->getAccessToken(),
-        'refresh_token' => $connection->getRefreshToken(),
-        'token_expires' => $connection->getTokenExpires(),
-    ];
-    
-    // Use this data to store the tokens in your application
-};
+    ->setTokenUpdateCallback(function (\Sendy\Api\Connection $connection) {
+        $data = [
+            'access_token' => $connection->getAccessToken(),
+            'refresh_token' => $connection->getRefreshToken(),
+            'token_expires' => $connection->getTokenExpires(),
+        ];
+        
+        // Use this data to store the tokens in your application
+    });
 ```
 
 ### Endpoints
