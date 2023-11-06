@@ -23,7 +23,7 @@ class ConnectionTest extends TestCase
         $connection = new Connection();
 
         $this->assertEquals(
-            sprintf('Sendy/1.0 PHP/%s', phpversion()),
+            sprintf('Sendy/1.0.1 PHP/%s', phpversion()),
             $connection->getClient()->getConfig('headers')['User-Agent']
         );
 
@@ -31,7 +31,7 @@ class ConnectionTest extends TestCase
         $connection->setOauthClient(true);
 
         $this->assertEquals(
-            sprintf('Sendy/1.0 PHP/%s OAuth/2.0', phpversion()),
+            sprintf('Sendy/1.0.1 PHP/%s OAuth/2.0', phpversion()),
             $connection->getClient()->getConfig('headers')['User-Agent']
         );
     }
@@ -288,7 +288,7 @@ class ConnectionTest extends TestCase
         $this->assertEquals(time() + 3600, $connection->getTokenExpires());
 
         $this->assertEquals(
-            'https://app.sendy.nl/oauth/token/refresh',
+            'https://app.sendy.nl/oauth/token',
             (string) $mockHandler->getLastRequest()->getUri()
         );
     }

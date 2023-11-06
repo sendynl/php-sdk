@@ -33,9 +33,7 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    private const REFRESH_URL = '/oauth/token/refresh';
-
-    private const VERSION = '1.0';
+    private const VERSION = '1.0.1';
 
     /** @var Client|null */
     private ?Client $client = null;
@@ -289,8 +287,6 @@ class Connection
                     'client_secret' => $this->clientSecret,
                     'code'          => $this->authorizationCode,
                 ];
-
-                $response = $this->getClient()->post(self::BASE_URL . self::TOKEN_URL, ['form_params' => $parameters]);
             } else {
                 $parameters = [
                     'refresh_token' => $this->refreshToken,
@@ -298,12 +294,9 @@ class Connection
                     'client_id'     => $this->clientId,
                     'client_secret' => $this->clientSecret,
                 ];
-
-                $response = $this->getClient()->post(
-                    self::BASE_URL . self::REFRESH_URL,
-                    ['form_params' => $parameters]
-                );
             }
+
+            $response = $this->getClient()->post(self::BASE_URL . self::TOKEN_URL, ['form_params' => $parameters]);
 
             Message::rewindBody($response);
 
