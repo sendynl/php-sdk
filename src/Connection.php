@@ -33,7 +33,7 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    private const VERSION = '1.0.1';
+    private const VERSION = '1.0.2';
 
     /** @var Client|null */
     private ?Client $client = null;
