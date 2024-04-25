@@ -28,6 +28,14 @@ class ConnectionTest extends TestCase
         );
 
         $connection = new Connection();
+        $connection->setUserAgentAppendix('WooCommerce/6.2');
+
+        $this->assertEquals(
+            sprintf('Sendy/1.0.1 PHP/%s WooCommerce/6.2', phpversion()),
+            $connection->getClient()->getConfig('headers')['User-Agent']
+        );
+
+        $connection = new Connection();
         $connection->setOauthClient(true);
 
         $this->assertEquals(
