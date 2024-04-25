@@ -23,7 +23,15 @@ class ConnectionTest extends TestCase
         $connection = new Connection();
 
         $this->assertEquals(
-            sprintf('Sendy/1.0.1 PHP/%s', phpversion()),
+            sprintf('Sendy/1.0.2 PHP/%s', phpversion()),
+            $connection->getClient()->getConfig('headers')['User-Agent']
+        );
+
+        $connection = new Connection();
+        $connection->setUserAgentAppendix('WooCommerce/6.2');
+
+        $this->assertEquals(
+            sprintf('Sendy/1.0.2 PHP/%s WooCommerce/6.2', phpversion()),
             $connection->getClient()->getConfig('headers')['User-Agent']
         );
 
@@ -31,7 +39,7 @@ class ConnectionTest extends TestCase
         $connection->setOauthClient(true);
 
         $this->assertEquals(
-            sprintf('Sendy/1.0.1 PHP/%s OAuth/2.0', phpversion()),
+            sprintf('Sendy/1.0.2 PHP/%s OAuth/2.0', phpversion()),
             $connection->getClient()->getConfig('headers')['User-Agent']
         );
     }

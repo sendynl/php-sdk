@@ -33,7 +33,7 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    private const VERSION = '1.0.1';
+    private const VERSION = '1.0.2';
 
     /** @var Client|null */
     private ?Client $client = null;
@@ -58,6 +58,9 @@ class Connection
 
     /** @var string The URL as configured with the OAuth client */
     private string $redirectUrl;
+
+    /** @var string The appendix for the user agent */
+    private string $userAgentAppendix = '';
 
     /** @var mixed */
     private $state = null;
@@ -87,12 +90,14 @@ class Connection
             $userAgent .= ' OAuth/2.0';
         }
 
+        $userAgent .= " {$this->userAgentAppendix}";
+
         $this->client = new Client([
             'http_errors' => true,
             'expect' => false,
             'base_uri' => self::BASE_URL,
             'headers' => [
-                'User-Agent' => $userAgent,
+                'User-Agent' => trim($userAgent),
             ]
         ]);
 
@@ -105,6 +110,17 @@ class Connection
     public function setClient(Client $client): void
     {
         $this->client = $client;
+    }
+
+    /**
+     * @param string $userAgentAppendix
+     * @return Connection
+     */
+    public function setUserAgentAppendix(string $userAgentAppendix): Connection
+    {
+        $this->userAgentAppendix = $userAgentAppendix;
+
+        return $this;
     }
 
     /**
