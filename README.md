@@ -87,7 +87,7 @@ $connection->setOauthClient(true);
 
 $connection->setClientId('your-client-id')
     ->setClientSecret('your-client-secret')
-    ->setRedirectUrl('your-callback-url');
+    ->setRedirectUrl('your-callback-url')
     ->setTokenUpdateCallback(function (\Sendy\Api\Connection $connection) {
         $data = [
             'access_token' => $connection->getAccessToken(),

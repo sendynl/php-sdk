@@ -13,15 +13,15 @@ final class Label extends Resource
      * Get a combined PDF with labels of all packages in the given shipments
      *
      * @param non-empty-array<string> $shipmentIds The ids of the shipments
-     * @param 'A4'|'A6' $paperType The paper size to combine the labels on
-     * @param 'top-left'|'top-right'|'bottom-left'|'bottom-right' $startLocation Where to start combining the labels.
-     *                                                                           Used when $paperType is set to A4.
+     * @param null|'A4'|'A6' $paperType The paper size to combine the labels on
+     * @param null|'top-left'|'top-right'|'bottom-left'|'bottom-right' $startLocation Where to start combining the
+     *  labels. Only used when $paperType is set to A4.
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
      * @see https://app.sendy.nl/api/docs#tag/Documents/operation/getLabels
      */
-    public function get(array $shipmentIds, string $paperType = 'A6', string $startLocation = 'top-left'): array
+    public function get(array $shipmentIds, string $paperType = null, string $startLocation = null): array
     {
         $params = [
             'ids' => $shipmentIds,
