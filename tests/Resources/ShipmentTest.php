@@ -22,7 +22,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->list());
 
-        $this->assertEquals('/api/shipments?page=1', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments?page=1', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
     }
 
@@ -36,7 +36,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->get('1337'));
 
-        $this->assertEquals('/api/shipments/1337', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
     }
 
@@ -50,7 +50,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->update('1337', ['foo' => 'bar']));
 
-        $this->assertEquals('/api/shipments/1337', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('PUT', $handler->getLastRequest()->getMethod());
         $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
     }
@@ -65,7 +65,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->delete('1337'));
 
-        $this->assertEquals('/api/shipments/1337', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('DELETE', $handler->getLastRequest()->getMethod());
     }
 
@@ -82,7 +82,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals(
             '/api/shipments/preference?generateDirectly=0',
-            (string) $handler->getLastRequest()->getUri()
+            (string)$handler->getLastRequest()->getUri()
         );
         $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
         $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
@@ -90,9 +90,25 @@ class ShipmentTest extends TestCase
         $this->assertEquals([], $resource->createFromPreference(['foo' => 'bar']));
         $this->assertEquals(
             '/api/shipments/preference?generateDirectly=1',
-            (string) $handler->getLastRequest()->getUri()
+            (string)$handler->getLastRequest()->getUri()
         );
     }
+
+    public function testCreateWithSmartRules(): void
+    {
+        $handler = new MockHandler([
+            new Response(200, [], json_encode(['foo' => 'bar'])),
+        ]);
+
+        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+
+        $resource->createWithSmartRules(['foo' => 'bar']);
+
+        $this->assertEquals('/api/shipments/smart-rule', (string)$handler->getLastRequest()->getUri());
+        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
+    }
+
 
     public function testGenerate(): void
     {
@@ -105,13 +121,13 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->generate('1337'));
 
-        $this->assertEquals('/api/shipments/1337/generate', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337/generate', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
         $this->assertEquals('{"asynchronous":true}', $handler->getLastRequest()->getBody()->getContents());
 
         $this->assertEquals([], $resource->generate('1337', false));
 
-        $this->assertEquals('/api/shipments/1337/generate', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337/generate', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('{"asynchronous":false}', $handler->getLastRequest()->getBody()->getContents());
     }
 
@@ -125,7 +141,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->labels('1337'));
 
-        $this->assertEquals('/api/shipments/1337/labels', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337/labels', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
     }
 
@@ -139,7 +155,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals([], $resource->documents('1337'));
 
-        $this->assertEquals('/api/shipments/1337/documents', (string) $handler->getLastRequest()->getUri());
+        $this->assertEquals('/api/shipments/1337/documents', (string)$handler->getLastRequest()->getUri());
         $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
     }
 }
