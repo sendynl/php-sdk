@@ -6,7 +6,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Sendy\Api\ApiException;
 use Sendy\Api\Meta;
 
-class Shipment extends Resource
+final class Shipment extends Resource
 {
     /**
      * List all shipments
@@ -93,6 +93,20 @@ class Shipment extends Resource
     public function createFromPreference(array $data, bool $generateDirectly = true): array
     {
         return $this->connection->post("/shipments/preference", $data, ['generateDirectly' => $generateDirectly]);
+    }
+
+    /**
+     * Create a shipment from a smart rule
+     *
+     * @param array<string, mixed|array<string,mixed>> $data
+     * @return array<string, mixed|array<string|mixed>>
+     * @throws ApiException
+     * @throws GuzzleException
+     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.smart-rule
+     */
+    public function createWithSmartRules(array $data): array
+    {
+        return $this->connection->post('/shipments/smart-rule', $data);
     }
 
     /**
