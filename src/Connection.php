@@ -289,6 +289,12 @@ class Connection
 
     public function tokenHasExpired(): bool
     {
+        // Starting July 1st, 2025 only short-lived access tokens will be issued from the API. This will invalidate all
+        // tokens issued before July 1st with a lifespan longer than 10 minutes.
+        if (time() > 1751320800 && $this->tokenExpires > time() + 600) {
+            return true;
+        }
+
         return $this->tokenExpires - 10 < time();
     }
 
