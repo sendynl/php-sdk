@@ -22,6 +22,7 @@ use Sendy\Api\Resources\Resource;
  * @property-read \Sendy\Api\Resources\Shipment $shipment
  * @property-read \Sendy\Api\Resources\ShippingPreference $shippingPreference
  * @property-read \Sendy\Api\Resources\Shop $shop
+ * @property-read \Sendy\Api\Resources\Webhook $webhook
  */
 class Connection
 {
