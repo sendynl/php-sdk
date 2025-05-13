@@ -12,7 +12,7 @@ class ShippingPreference extends Resource
      *
      * Display all active shipping preferences for the active company in a list.
      *
-     * @see https://app.sendy.nl/api/docs#tag/Shipping-preferences/operation/shipping_preferences.index
+     * @link https://app.sendy.nl/api/docs#tag/Shipping-preferences
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException

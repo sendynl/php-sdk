@@ -10,7 +10,7 @@ final class Webhook extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Sendy\Api\ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.index
+     * @link https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.index
      */
     public function list(): array
     {
@@ -24,7 +24,7 @@ final class Webhook extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Sendy\Api\ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.store
+     * @link https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.store
      */
     public function create(array $data): array
     {

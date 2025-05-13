@@ -17,7 +17,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.index
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.index
      * @see Meta
      */
     public function list(int $page = 1): array
@@ -34,7 +34,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.show
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.show
      */
     public function get(string $id): array
     {
@@ -70,7 +70,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.destroy
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.destroy
      */
     public function delete(string $id): array
     {
@@ -87,7 +87,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.preference
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.preference
      * @see ShippingPreference
      */
     public function createFromPreference(array $data, bool $generateDirectly = true): array
@@ -102,7 +102,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.smart-rule
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.smart-rule
      */
     public function createWithSmartRules(array $data): array
     {
@@ -119,7 +119,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Shipments/operation/shipments.generate
+     * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.generate
      */
     public function generate(string $id, bool $asynchronous = true): array
     {
@@ -135,7 +135,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Documents/operation/getLabels
+     * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.shipments.labels.index
      */
     public function labels(string $id): array
     {
@@ -151,7 +151,7 @@ final class Shipment extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Documents/operation/shipments.documents
+     * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.shipments.documents.index
      */
     public function documents(string $id): array
     {

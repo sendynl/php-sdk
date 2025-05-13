@@ -9,7 +9,7 @@ final class Me extends Resource
      *
      * Display the currently authenticated user’s profile.
      *
-     * @see https://app.sendy.nl/api/docs#tag/User/operation/getProfileInformation
+     * @link https://app.sendy.nl/api/docs#tag/User/operation/api.me
      * @return array<string, mixed|array<string|mixed>>
      */
     public function get(): array
