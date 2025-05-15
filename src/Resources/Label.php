@@ -19,7 +19,7 @@ final class Label extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Documents/operation/getLabels
+     * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.labels.index
      */
     public function get(array $shipmentIds, string $paperType = null, string $startLocation = null): array
     {

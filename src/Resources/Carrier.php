@@ -15,7 +15,7 @@ final class Carrier extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Carriers/operation/getCarriers
+     * @link https://app.sendy.nl/api/docs#tag/Carriers/operation/api.carriers.index
      */
     public function list(): array
     {
@@ -31,7 +31,7 @@ final class Carrier extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
-     * @see https://app.sendy.nl/api/docs#tag/Carriers/operation/getCarrier
+     * @link https://app.sendy.nl/api/docs#tag/Carriers/operation/api.carriers.show
      */
     public function get(int $id): array
     {

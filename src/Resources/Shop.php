@@ -12,7 +12,7 @@ class Shop extends Resource
      *
      * Display all shops in a list
      *
-     * @see https://app.sendy.nl/api/docs#tag/Shops/operation/getShops
+     * @link https://app.sendy.nl/api/docs#tag/Shops/operation/api.shops.index
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
@@ -27,7 +27,7 @@ class Shop extends Resource
      *
      * Get a specific shop by its UUID
      *
-     * @see https://app.sendy.nl/api/docs#tag/Shops/operation/getShopByUuid
+     * @link https://app.sendy.nl/api/docs#tag/Shops/operation/api.shops.show
      * @param string $id
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException

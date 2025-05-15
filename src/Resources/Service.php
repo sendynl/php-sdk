@@ -16,7 +16,7 @@ class Service extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Services/operation/getCarrierServices
+     * @link https://app.sendy.nl/api/docs#tag/Services/operation/api.carriers.services.index
      */
     public function list(int $carrierId): array
     {

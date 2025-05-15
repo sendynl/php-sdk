@@ -20,7 +20,7 @@ class Parcelshop extends Resource
      * @return array<string, mixed|array<string|mixed>>
      * @throws GuzzleException
      * @throws ApiException
-     * @see https://app.sendy.nl/api/docs#tag/Parcel-shops
+     * @link https://app.sendy.nl/api/docs#tag/Parcel-shops
      */
     public function list(
         array $carriers,
