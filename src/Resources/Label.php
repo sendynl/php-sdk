@@ -21,7 +21,7 @@ final class Label extends Resource
      * @throws ApiException
      * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.labels.index
      */
-    public function get(array $shipmentIds, string $paperType = null, string $startLocation = null): array
+    public function get(array $shipmentIds, ?string $paperType = null, ?string $startLocation = null): array
     {
         $params = [
             'ids' => $shipmentIds,

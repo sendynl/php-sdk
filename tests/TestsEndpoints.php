@@ -17,7 +17,7 @@ trait TestsEndpoints
 
         $client = new Client(['handler' => HandlerStack::create($handler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         return $connection;
     }

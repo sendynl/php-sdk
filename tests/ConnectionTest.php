@@ -7,12 +7,11 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 use Sendy\Api\ApiException;
 use Sendy\Api\Connection;
-use PHPUnit\Framework\TestCase;
 use Sendy\Api\Meta;
 use Sendy\Api\Resources\Me;
 
@@ -24,7 +23,7 @@ class ConnectionTest extends TestCase
 
         $this->assertEquals(
             sprintf('Sendy/1.0.2 PHP/%s', phpversion()),
-            $connection->getClient()->getConfig('headers')['User-Agent']
+            $connection->getTransport()->getConfig('headers')['User-Agent']
         );
 
         $connection = new Connection();
@@ -32,7 +31,7 @@ class ConnectionTest extends TestCase
 
         $this->assertEquals(
             sprintf('Sendy/1.0.2 PHP/%s WooCommerce/6.2', phpversion()),
-            $connection->getClient()->getConfig('headers')['User-Agent']
+            $connection->getTransport()->getConfig('headers')['User-Agent']
         );
 
         $connection = new Connection();
@@ -40,7 +39,7 @@ class ConnectionTest extends TestCase
 
         $this->assertEquals(
             sprintf('Sendy/1.0.2 PHP/%s OAuth/2.0', phpversion()),
-            $connection->getClient()->getConfig('headers')['User-Agent']
+            $connection->getTransport()->getConfig('headers')['User-Agent']
         );
     }
 
@@ -253,7 +252,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $connection->setClientId('clientId');
         $connection->setRedirectUrl('https://www.example.com/');
@@ -283,7 +282,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $connection->setClientId('clientId');
         $connection->setClientSecret('clientSecret');
@@ -315,7 +314,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $connection->setClientId('clientId');
         $connection->setClientSecret('clientSecret');
@@ -343,7 +342,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $this->assertEquals(['foo' => 'bar'], $connection->get('/foo'));
 
@@ -373,7 +372,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $this->assertEquals([], $connection->delete('/bar'));
 
@@ -392,7 +391,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $this->assertEquals(['foo' => 'bar'], $connection->post('/foo', ['request' => 'body']));
 
@@ -412,7 +411,7 @@ class ConnectionTest extends TestCase
 
         $client = new Client(['handler' => HandlerStack::create($mockHandler)]);
 
-        $connection->setClient($client);
+        $connection->setTransport($client);
 
         $this->assertEquals(['foo' => 'bar'], $connection->put('/foo', ['request' => 'body']));
 

@@ -2,7 +2,12 @@
 
 namespace Sendy\Api;
 
-final class ApiException extends \Exception
+/**
+ * @deprecated This class exists for backwards compatibility and may be removed in a future version.
+ * @todo Replace internal usages with the new more granular exceptions in `Sendy\Api\Exceptions`.
+ * @internal
+ */
+class ApiException extends \Exception
 {
     /** @var array<string, string[]> */
     private array $errors = [];
@@ -13,7 +18,7 @@ final class ApiException extends \Exception
      * @param \Throwable|null $previous
      * @param string[][] $errors
      */
-    public function __construct(string $message = "", int $code = 0, \Throwable $previous = null, array $errors = [])
+    public function __construct(string $message = "", int $code = 0, ?\Throwable $previous = null, array $errors = [])
     {
         $this->errors = $errors;
 

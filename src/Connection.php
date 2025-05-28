@@ -4,13 +4,15 @@ namespace Sendy\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Sendy\Api\Exceptions\TransportException;
+use Sendy\Api\Http\Request;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\TransportFactory;
+use Sendy\Api\Http\Transport\TransportInterface;
 use Sendy\Api\Resources\Resource;
 
 /**
@@ -26,7 +28,9 @@ use Sendy\Api\Resources\Resource;
  */
 class Connection
 {
-    private const BASE_URL = 'https://app.sendy.nl';
+    public const VERSION = '3.0.0';
+
+    public const BASE_URL = 'https://app.sendy.nl';
 
     private const API_URL = '/api';
 
@@ -34,10 +38,8 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    private const VERSION = '1.0.2';
-
-    /** @var Client|null */
-    private ?Client $client = null;
+    /** @var TransportInterface|null */
+    private ?TransportInterface $transport = null;
 
     /** @var string The Client ID as UUID */
     private string $clientId;
@@ -66,7 +68,7 @@ class Connection
     /** @var mixed */
     private $state = null;
 
-    /** @var callable(Client) */
+    /** @var callable($this) */
     private $tokenUpdateCallback;
 
     /** @var bool */
@@ -77,40 +79,23 @@ class Connection
     public ?RateLimits $rateLimits;
 
     /**
-     * @return Client
+     * @return TransportInterface
      */
-    public function getClient(): Client
+    public function getTransport(): TransportInterface
     {
-        if ($this->client instanceof Client) {
-            return $this->client;
+        if ($this->transport instanceof TransportInterface) {
+            return $this->transport;
         }
 
-        $userAgent = sprintf("Sendy/%s PHP/%s", self::VERSION, phpversion());
-
-        if ($this->isOauthClient()) {
-            $userAgent .= ' OAuth/2.0';
-        }
-
-        $userAgent .= " {$this->userAgentAppendix}";
-
-        $this->client = new Client([
-            'http_errors' => true,
-            'expect' => false,
-            'base_uri' => self::BASE_URL,
-            'headers' => [
-                'User-Agent' => trim($userAgent),
-            ]
-        ]);
-
-        return $this->client;
+        return $this->transport = TransportFactory::create();
     }
 
     /**
-     * @param Client $client
+     * @param TransportInterface $transport
      */
-    public function setClient(Client $client): void
+    public function setTransport(TransportInterface $transport): void
     {
-        $this->client = $client;
+        $this->transport = $transport;
     }
 
     /**
@@ -319,24 +304,22 @@ class Connection
                 ];
             }
 
-            $response = $this->getClient()->post(self::BASE_URL . self::TOKEN_URL, ['form_params' => $parameters]);
+            $response = $this->post(self::BASE_URL . self::TOKEN_URL, $parameters);
 
-            Message::rewindBody($response);
+            try {
+                $body = $response->getDecodedBody();
+            } catch (\JsonException $e) {
+                throw new ApiException(
+                    'Could not acquire tokens, json decode failed. Got response: ' . $response->getBody()
+                );
+            }
 
-            $responseBody = $response->getBody()->getContents();
+            $this->accessToken = $body['access_token'];
+            $this->refreshToken = $body['refresh_token'];
+            $this->tokenExpires = time() + $body['expires_in'];
 
-            $body = json_decode($responseBody, true);
-
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $this->accessToken = $body['access_token'];
-                $this->refreshToken = $body['refresh_token'];
-                $this->tokenExpires = time() + $body['expires_in'];
-
-                if (is_callable($this->tokenUpdateCallback)) {
-                    call_user_func($this->tokenUpdateCallback, $this);
-                }
-            } else {
-                throw new ApiException('Could not acquire tokens, json decode failed. Got response: ' . $responseBody);
+            if (is_callable($this->tokenUpdateCallback)) {
+                call_user_func($this->tokenUpdateCallback, $this);
             }
         } catch (BadResponseException $e) {
             throw new ApiException('Something went wrong. Got: ' . $e->getMessage(), 0, $e);
@@ -346,7 +329,7 @@ class Connection
     /**
      * @param string $method
      * @param string $endpoint
-     * @param null|StreamInterface|resource|string $body
+     * @param string $body
      * @param array<string, string|string[]>|null $params
      * @param array<string, string|string[]>|null $headers
      * @return Request
@@ -354,13 +337,22 @@ class Connection
     private function createRequest(
         string $method,
         string $endpoint,
-        $body = null,
-        array $params = null,
-        array $headers = null
+        ?string $body = null,
+        array $params = [],
+        array $headers = []
     ): Request {
+        $userAgent = sprintf("Sendy/%s PHP/%s", self::VERSION, phpversion());
+
+        if ($this->isOauthClient()) {
+            $userAgent .= ' OAuth/2.0';
+        }
+
+        $userAgent .= " {$this->getTransport()->getUserAgent()} {$this->userAgentAppendix}";
+
         $headers = array_merge($headers, [
-            'Accept'       => 'application/json',
+            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
+            'User-Agent' => trim($userAgent),
         ]);
 
         $this->checkOrAcquireAccessToken();
@@ -380,8 +372,7 @@ class Connection
      * @param array<string, mixed> $params
      * @param array<string, mixed> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws TransportException
      */
     public function get($url, array $params = [], array $headers = []): array
     {
@@ -398,10 +389,9 @@ class Connection
      * @param array<string, mixed|mixed[]> $params
      * @param array<string, mixed|mixed[]> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws TransportException
      */
-    public function post($url, array $body = null, array $params = [], array $headers = []): array
+    public function post($url, ?array $body = null, array $params = [], array $headers = []): array
     {
         $url = self::API_URL . $url;
 
@@ -420,8 +410,7 @@ class Connection
      * @param array<string, mixed|array<string, mixed>> $params
      * @param array<string, mixed|array<string, mixed>> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws TransportException
      */
     public function put($url, array $body = [], array $params = [], array $headers = []): array
     {
@@ -436,7 +425,7 @@ class Connection
     /**
      * @param UriInterface|string $url
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException|\GuzzleHttp\Exception\GuzzleException
+     * @throws TransportException
      */
     public function delete($url): array
     {
@@ -447,45 +436,30 @@ class Connection
         return $this->performRequest($request);
     }
 
-    /**
-     * @param Request $request
-     * @return mixed[]|\mixed[][]|\string[][]
-     * @throws ApiException
-     * @throws GuzzleException
-     */
     private function performRequest(Request $request): array
     {
-        try {
-            $response = $this->getClient()->send($request);
+        $response = $this->getTransport()->send($request);
 
-            return $this->parseResponse($response);
-        } catch (\Exception $e) {
-            $this->parseException($e);
-        }
+        return $this->parseResponse($response);
     }
 
     /**
-     * @param ResponseInterface $response
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      */
-    public function parseResponse(ResponseInterface $response): array
+    public function parseResponse(Response $response): array
     {
         $this->extractRateLimits($response);
+
+        if ($exception = $response->toException()) {
+            throw $exception;
+        }
 
         if ($response->getStatusCode() === 204) {
             return [];
         }
 
-        Message::rewindBody($response);
-
-        $responseBody = $response->getBody()->getContents();
-
-        $json = json_decode($responseBody, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ApiException("Json decode failed. Got: " . $responseBody);
-        }
+        $json = $response->getDecodedBody();
 
         if (array_key_exists('data', $json)) {
             if (array_key_exists('meta', $json)) {
@@ -500,43 +474,7 @@ class Connection
         return $json;
     }
 
-    /**
-     * @param \Exception $e
-     * @return void
-     * @throws ApiException
-     */
-    public function parseException(\Exception $e): void
-    {
-        if (! $e instanceof BadResponseException) {
-            throw new ApiException($e->getMessage(), 0, $e);
-        }
-
-        $this->extractRateLimits($e->getResponse());
-
-        if ($e instanceof ServerException) {
-            throw new ApiException($e->getMessage(), $e->getResponse()->getStatusCode());
-        }
-
-        $response = $e->getResponse();
-
-        Message::rewindBody($response);
-
-        $responseBody = $response->getBody()->getContents();
-
-        $json = json_decode($responseBody, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ApiException("Json decode failed. Got: " . $responseBody);
-        }
-
-        if (array_key_exists('errors', $json)) {
-            throw new ApiException($json['message'], 0, $e, $json['errors']);
-        }
-
-        throw new ApiException($json['message']);
-    }
-
-    private function extractRateLimits(ResponseInterface $response): void
+    private function extractRateLimits(Response $response): void
     {
         $this->rateLimits = RateLimits::buildFromResponse($response);
     }
