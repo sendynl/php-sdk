@@ -14,5 +14,8 @@ interface TransportInterface
      */
     public function send(Request $request): Response;
 
+    /**
+     * Get the part of the user agent string that identifies the HTTP client.
+     */
     public function getUserAgent(): string;
 }

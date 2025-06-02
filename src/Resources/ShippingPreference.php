@@ -2,8 +2,7 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
 class ShippingPreference extends Resource
 {
@@ -14,8 +13,7 @@ class ShippingPreference extends Resource
      *
      * @link https://app.sendy.nl/api/docs#tag/Shipping-preferences
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      */
     public function list(): array
     {

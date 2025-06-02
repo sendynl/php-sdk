@@ -2,7 +2,6 @@
 
 namespace Sendy\Api;
 
-use Psr\Http\Message\ResponseInterface;
 use Sendy\Api\Http\Response;
 
 final class RateLimits

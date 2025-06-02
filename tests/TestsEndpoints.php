@@ -2,22 +2,16 @@
 
 namespace Sendy\Api\Tests;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 use Sendy\Api\Connection;
+use Sendy\Api\Http\Transport\MockTransport;
 
 trait TestsEndpoints
 {
-    public function buildConnectionWithMockHandler(MockHandler $handler): Connection
+    public function buildConnectionWithMockTransport(MockTransport $transport): Connection
     {
         $connection = new Connection();
         $connection->setAccessToken('PersonalAccessToken');
-
-        $client = new Client(['handler' => HandlerStack::create($handler)]);
-
-        $connection->setTransport($client);
+        $connection->setTransport($transport);
 
         return $connection;
     }

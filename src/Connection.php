@@ -2,11 +2,6 @@
 
 namespace Sendy\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\BadResponseException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Psr7\Message;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
@@ -286,62 +281,53 @@ class Connection
 
     private function acquireAccessToken(): void
     {
-        try {
-            if (empty($this->refreshToken)) {
-                $parameters = [
-                    'redirect_uri'  => $this->redirectUrl,
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'code'          => $this->authorizationCode,
-                ];
-            } else {
-                $parameters = [
-                    'refresh_token' => $this->refreshToken,
-                    'grant_type'    => 'refresh_token',
-                    'client_id'     => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                ];
-            }
+        if (empty($this->refreshToken)) {
+            $parameters = [
+                'redirect_uri'  => $this->redirectUrl,
+                'grant_type'    => 'authorization_code',
+                'client_id'     => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'code'          => $this->authorizationCode,
+            ];
+        } else {
+            $parameters = [
+                'refresh_token' => $this->refreshToken,
+                'grant_type'    => 'refresh_token',
+                'client_id'     => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ];
+        }
 
-            $response = $this->post(self::BASE_URL . self::TOKEN_URL, $parameters);
+        $body = $this->performRequest(
+            $this->createRequest('POST', self::BASE_URL . self::TOKEN_URL, json_encode($parameters)),
+            false
+        );
 
-            try {
-                $body = $response->getDecodedBody();
-            } catch (\JsonException $e) {
-                throw new ApiException(
-                    'Could not acquire tokens, json decode failed. Got response: ' . $response->getBody()
-                );
-            }
+        $this->accessToken = $body['access_token'];
+        $this->refreshToken = $body['refresh_token'];
+        $this->tokenExpires = time() + $body['expires_in'];
 
-            $this->accessToken = $body['access_token'];
-            $this->refreshToken = $body['refresh_token'];
-            $this->tokenExpires = time() + $body['expires_in'];
-
-            if (is_callable($this->tokenUpdateCallback)) {
-                call_user_func($this->tokenUpdateCallback, $this);
-            }
-        } catch (BadResponseException $e) {
-            throw new ApiException('Something went wrong. Got: ' . $e->getMessage(), 0, $e);
+        if (is_callable($this->tokenUpdateCallback)) {
+            call_user_func($this->tokenUpdateCallback, $this);
         }
     }
 
     /**
      * @param string $method
      * @param string $endpoint
-     * @param string $body
-     * @param array<string, string|string[]>|null $params
-     * @param array<string, string|string[]>|null $headers
+     * @param string|null $body
+     * @param array<string, string|string[]> $params
+     * @param array<string, string> $headers
      * @return Request
      */
-    private function createRequest(
+    public function createRequest(
         string $method,
         string $endpoint,
         ?string $body = null,
         array $params = [],
         array $headers = []
     ): Request {
-        $userAgent = sprintf("Sendy/%s PHP/%s", self::VERSION, phpversion());
+        $userAgent = sprintf("SendySDK/%s PHP/%s", self::VERSION, phpversion());
 
         if ($this->isOauthClient()) {
             $userAgent .= ' OAuth/2.0';
@@ -354,10 +340,6 @@ class Connection
             'Content-Type' => 'application/json',
             'User-Agent' => trim($userAgent),
         ]);
-
-        $this->checkOrAcquireAccessToken();
-
-        $headers['Authorization'] = "Bearer {$this->accessToken}";
 
         if (! empty($params)) {
             $endpoint .= strpos($endpoint, '?') === false ? '?' : '&';
@@ -436,8 +418,14 @@ class Connection
         return $this->performRequest($request);
     }
 
-    private function performRequest(Request $request): array
+    private function performRequest(Request $request, bool $checkAccessToken = true): array
     {
+        if ($checkAccessToken) {
+            $this->checkOrAcquireAccessToken();
+
+            $request->setHeader('Authorization', "Bearer {$this->accessToken}");
+        }
+
         $response = $this->getTransport()->send($request);
 
         return $this->parseResponse($response);

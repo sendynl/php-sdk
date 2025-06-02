@@ -20,6 +20,9 @@ final class Request
 
     private ?string $body;
 
+    /**
+     * @param array<string, string> $headers
+     */
     public function __construct(
         string $method,
         string $url,
@@ -28,7 +31,7 @@ final class Request
     ) {
         $this->method = strtoupper($method);
         $this->url = $url;
-        $this->headers = $headers;
+        $this->headers = array_change_key_case($headers, CASE_LOWER);
         $this->body = $body;
     }
 
@@ -46,6 +49,9 @@ final class Request
         return $this->url;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getHeaders(): array
     {
         return $this->headers;
@@ -54,5 +60,10 @@ final class Request
     public function getBody(): ?string
     {
         return $this->body;
+    }
+
+    public function setHeader(string $name, string $value): void
+    {
+        $this->headers[strtolower($name)] = $value;
     }
 }

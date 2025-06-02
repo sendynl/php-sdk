@@ -24,7 +24,7 @@ final class TransportFactory
         }
 
         if (extension_loaded('curl')) {
-            return self::createGuzzleTransport();
+            return self::createCurlTransport();
         }
 
         throw new \LogicException(
@@ -36,14 +36,26 @@ final class TransportFactory
     {
         $httpFactory = new \GuzzleHttp\Psr7\HttpFactory();
 
-        return new Psr18Transport(new \GuzzleHttp\Client(), $httpFactory, $httpFactory, $httpFactory);
+        return new Psr18Transport(
+            new \GuzzleHttp\Client(),
+            $httpFactory,
+            $httpFactory,
+            $httpFactory,
+            \GuzzleHttp\Utils::defaultUserAgent()
+        );
     }
 
     public static function createSymfonyTransport(): Psr18Transport
     {
         $client = new \Symfony\Component\HttpClient\Psr18Client();
 
-        return new Psr18Transport($client, $client, $client, $client);
+        return new Psr18Transport(
+            $client,
+            $client,
+            $client,
+            $client,
+            'SymfonyHttpClient'
+        );
     }
 
     public static function createCurlTransport(): CurlTransport

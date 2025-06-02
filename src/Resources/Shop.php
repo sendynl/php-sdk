@@ -2,8 +2,7 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
 class Shop extends Resource
 {
@@ -14,8 +13,7 @@ class Shop extends Resource
      *
      * @link https://app.sendy.nl/api/docs#tag/Shops/operation/api.shops.index
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      */
     public function list(): array
     {
@@ -30,8 +28,7 @@ class Shop extends Resource
      * @link https://app.sendy.nl/api/docs#tag/Shops/operation/api.shops.show
      * @param string $id
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      */
     public function get(string $id): array
     {

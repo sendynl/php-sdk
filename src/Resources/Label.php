@@ -2,8 +2,7 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
 final class Label extends Resource
 {
@@ -17,8 +16,7 @@ final class Label extends Resource
      * @param null|'top-left'|'top-right'|'bottom-left'|'bottom-right' $startLocation Where to start combining the
      *  labels. Only used when $paperType is set to A4.
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.labels.index
      */
     public function get(array $shipmentIds, ?string $paperType = null, ?string $startLocation = null): array

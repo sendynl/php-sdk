@@ -15,17 +15,20 @@ class Psr18Transport implements TransportInterface
     private RequestFactoryInterface $requestFactory;
     private StreamFactoryInterface $streamFactory;
     private UriFactoryInterface $uriFactory;
+    private string $userAgent;
 
     public function __construct(
         ClientInterface $client,
         RequestFactoryInterface $requestFactory,
         StreamFactoryInterface $streamFactory,
-        UriFactoryInterface $uriFactory
+        UriFactoryInterface $uriFactory,
+        string $userAgent
     ) {
         $this->client = $client;
         $this->requestFactory = $requestFactory;
         $this->streamFactory = $streamFactory;
         $this->uriFactory = $uriFactory;
+        $this->userAgent = $userAgent;
     }
 
     public function send(Request $request): Response
@@ -80,6 +83,6 @@ class Psr18Transport implements TransportInterface
 
     public function getUserAgent(): string
     {
-        return 'PSR-18 (' . str_replace('\\', '_', get_class($this->client)) . ')';
+        return $this->userAgent;
     }
 }

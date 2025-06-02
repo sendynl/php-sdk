@@ -82,12 +82,15 @@ final class Response
     private string $body;
 
     /**
-     * @param array<string, list<string>> $headers
+     * @param array<string, list<string>|string> $headers
      */
     public function __construct(int $statusCode, array $headers, string $body)
     {
         $this->statusCode = $statusCode;
-        $this->headers = $headers;
+        $this->headers = array_map(
+            fn($value) => is_array($value) ? $value : [$value],
+            array_change_key_case($headers, CASE_LOWER)
+        );
         $this->body = $body;
     }
 
@@ -129,7 +132,7 @@ final class Response
      */
     public function getSummary(): string
     {
-        $summary = $this->statusCode . ' ' . (self::PHRASES[$this->statusCode] ?? 'Unknown Status');
+        $summary = $this->statusCode . ' - ' . (self::PHRASES[$this->statusCode] ?? 'Unknown Status');
         $decodedBody = json_decode($this->body, true);
         $message = $decodedBody['message'] ?? $decodedBody['error_description'] ?? null;
 
