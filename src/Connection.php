@@ -3,6 +3,9 @@
 namespace Sendy\Api;
 
 use Psr\Http\Message\UriInterface;
+use Sendy\Api\Exceptions\ClientException;
+use Sendy\Api\Exceptions\SendyException;
+use Sendy\Api\Exceptions\ServerException;
 use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
@@ -418,6 +421,10 @@ class Connection
         return $this->performRequest($request);
     }
 
+    /**
+     * @return array<string, mixed|array<string|mixed>>
+     * @throws SendyException
+     */
     private function performRequest(Request $request, bool $checkAccessToken = true): array
     {
         if ($checkAccessToken) {
@@ -433,7 +440,7 @@ class Connection
 
     /**
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
+     * @throws SendyException
      */
     public function parseResponse(Response $response): array
     {

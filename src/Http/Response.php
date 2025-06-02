@@ -4,6 +4,7 @@ namespace Sendy\Api\Http;
 
 use Sendy\Api\ApiException;
 use Sendy\Api\Exceptions\ClientException;
+use Sendy\Api\Exceptions\JsonException;
 use Sendy\Api\Exceptions\ServerException;
 use Sendy\Api\Exceptions\ValidationException;
 
@@ -123,7 +124,7 @@ final class Response
         try {
             return json_decode($this->body, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            throw new ApiException("Json decode failed. Got: {$this->body}", $this->statusCode, $e);
+            throw new JsonException("Json decode failed. Got: {$this->body}", $this->statusCode, $e);
         }
     }
 
