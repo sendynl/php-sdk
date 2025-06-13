@@ -135,10 +135,11 @@ final class Response
     {
         $summary = $this->statusCode . ' - ' . (self::PHRASES[$this->statusCode] ?? 'Unknown Status');
         $decodedBody = json_decode($this->body, true);
-        $message = $decodedBody['message'] ?? $decodedBody['error_description'] ?? null;
 
-        if ($message) {
-            $summary .= ': ' . $message;
+        if (isset($decodedBody['error_description'], $decodedBody['hint'])) {
+            $summary .= ": {$decodedBody['error_description']} ({$decodedBody['hint']})";
+        } elseif (isset($decodedBody['message'])) {
+            $summary .= ": {$decodedBody['message']}";
         }
 
         return $summary;
