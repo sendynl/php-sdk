@@ -3,10 +3,7 @@
 namespace Sendy\Api;
 
 use Psr\Http\Message\UriInterface;
-use Sendy\Api\Exceptions\ClientException;
 use Sendy\Api\Exceptions\SendyException;
-use Sendy\Api\Exceptions\ServerException;
-use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 use Sendy\Api\Http\Transport\TransportFactory;
@@ -264,6 +261,9 @@ class Connection
         return $this;
     }
 
+    /**
+     * @throws SendyException
+     */
     public function checkOrAcquireAccessToken(): void
     {
         if (empty($this->accessToken) || ($this->tokenHasExpired() && $this->isOauthClient())) {
@@ -282,6 +282,9 @@ class Connection
         return $this->tokenExpires - 10 < time();
     }
 
+    /**
+     * @throws SendyException
+     */
     private function acquireAccessToken(): void
     {
         if (empty($this->refreshToken)) {
@@ -357,7 +360,7 @@ class Connection
      * @param array<string, mixed> $params
      * @param array<string, mixed> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws TransportException
+     * @throws SendyException
      */
     public function get($url, array $params = [], array $headers = []): array
     {
@@ -374,7 +377,7 @@ class Connection
      * @param array<string, mixed|mixed[]> $params
      * @param array<string, mixed|mixed[]> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws TransportException
+     * @throws SendyException
      */
     public function post($url, ?array $body = null, array $params = [], array $headers = []): array
     {
@@ -395,7 +398,7 @@ class Connection
      * @param array<string, mixed|array<string, mixed>> $params
      * @param array<string, mixed|array<string, mixed>> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws TransportException
+     * @throws SendyException
      */
     public function put($url, array $body = [], array $params = [], array $headers = []): array
     {
@@ -410,7 +413,7 @@ class Connection
     /**
      * @param UriInterface|string $url
      * @return array<string, mixed|array<string|mixed>>
-     * @throws TransportException
+     * @throws SendyException
      */
     public function delete($url): array
     {

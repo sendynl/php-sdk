@@ -117,7 +117,7 @@ final class Response
      * Decode the JSON body of the response.
      *
      * @return array<string, mixed>
-     * @throws ApiException If the body is not valid JSON.
+     * @throws JsonException If the body is not valid JSON.
      */
     public function getDecodedBody(): array
     {
