@@ -49,12 +49,18 @@ final class TransportFactory
     {
         $client = new \Symfony\Component\HttpClient\Psr18Client();
 
+        $userAgent = 'SymfonyHttpClient';
+
+        if (class_exists(\Symfony\Component\HttpKernel\Kernel::class)) {
+            $userAgent .= '/' . \Symfony\Component\HttpKernel\Kernel::VERSION;
+        }
+
         return new Psr18Transport(
             $client,
             $client,
             $client,
             $client,
-            'SymfonyHttpClient'
+            $userAgent
         );
     }
 
