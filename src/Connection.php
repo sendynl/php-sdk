@@ -74,6 +74,11 @@ class Connection
     public ?RateLimits $rateLimits;
 
     /**
+     * @var array<string, list<string>>
+     */
+    public array $sendyHeaders = [];
+
+    /**
      * @return TransportInterface
      */
     public function getTransport(): TransportInterface
@@ -289,17 +294,17 @@ class Connection
     {
         if (empty($this->refreshToken)) {
             $parameters = [
-                'redirect_uri'  => $this->redirectUrl,
-                'grant_type'    => 'authorization_code',
-                'client_id'     => $this->clientId,
+                'redirect_uri' => $this->redirectUrl,
+                'grant_type' => 'authorization_code',
+                'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
-                'code'          => $this->authorizationCode,
+                'code' => $this->authorizationCode,
             ];
         } else {
             $parameters = [
                 'refresh_token' => $this->refreshToken,
-                'grant_type'    => 'refresh_token',
-                'client_id'     => $this->clientId,
+                'grant_type' => 'refresh_token',
+                'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
             ];
         }
@@ -448,6 +453,7 @@ class Connection
     public function parseResponse(Response $response): array
     {
         $this->extractRateLimits($response);
+        $this->extractSendyHeaders($response);
 
         if ($exception = $response->toException()) {
             throw $exception;
@@ -475,6 +481,18 @@ class Connection
     private function extractRateLimits(Response $response): void
     {
         $this->rateLimits = RateLimits::buildFromResponse($response);
+    }
+
+    /**
+     * Extract the x-sendy-* headers from the response.
+     */
+    private function extractSendyHeaders(Response $response): void
+    {
+        $this->sendyHeaders = array_filter(
+            $response->getHeaders(),
+            fn(string $key) => substr($key, 0, 8) === 'x-sendy-',
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**
