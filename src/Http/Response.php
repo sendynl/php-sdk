@@ -4,6 +4,7 @@ namespace Sendy\Api\Http;
 
 use Sendy\Api\ApiException;
 use Sendy\Api\Exceptions\ClientException;
+use Sendy\Api\Exceptions\HttpException;
 use Sendy\Api\Exceptions\JsonException;
 use Sendy\Api\Exceptions\ServerException;
 use Sendy\Api\Exceptions\ValidationException;
@@ -157,26 +158,22 @@ final class Response
         return $data['errors'] ?? [];
     }
 
-    /**
-     * @return ClientException|ServerException|null
-     */
-    public function toException()
+    public function toException(Request $request): ?HttpException
     {
         if ($this->statusCode === 422) {
-            return new ValidationException(
-                $this->getDecodedBody()['message'] ?? 'Validation failed',
-                $this->statusCode,
-                null,
-                $this->getErrors()
+            return ValidationException::fromRequestAndResponse(
+                $request,
+                $this,
+                $this->getDecodedBody()['message'] ?? 'Validation failed'
             );
         }
 
         if ($this->statusCode >= 400 && $this->statusCode < 500) {
-            return new ClientException($this->getSummary(), $this->statusCode, null, $this->getErrors());
+            return ClientException::fromRequestAndResponse($request, $this);
         }
 
         if ($this->statusCode >= 500) {
-            return new ServerException($this->getSummary(), $this->statusCode, null, $this->getErrors());
+            return ServerException::fromRequestAndResponse($request, $this);
         }
 
         return null;

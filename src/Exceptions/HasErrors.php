@@ -13,8 +13,12 @@ trait HasErrors
      * @param \Throwable|null $previous
      * @param string[][] $errors
      */
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, array $errors = [])
-    {
+    final public function __construct(
+        string $message = '',
+        int $code = 0,
+        ?\Throwable $previous = null,
+        array $errors = []
+    ) {
         $this->errors = $errors;
 
         parent::__construct($message, $code, $previous);

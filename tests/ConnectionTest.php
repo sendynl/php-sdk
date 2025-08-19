@@ -5,6 +5,7 @@ namespace Sendy\Api\Tests;
 use PHPUnit\Framework\TestCase;
 use Sendy\Api\ApiException;
 use Sendy\Api\Connection;
+use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 use Sendy\Api\Http\Transport\MockTransport;
 use Sendy\Api\Http\Transport\TransportFactory;
@@ -89,7 +90,7 @@ class ConnectionTest extends TestCase
 
         $response = new Response(204, [], '');
 
-        $this->assertEquals([], $connection->parseResponse($response));
+        $this->assertEquals([], $connection->parseResponse($response, new Request('GET', '/foo')));
     }
 
     public function testParseResponseThrowsApiExceptionWithInvalidJson(): void
@@ -101,7 +102,7 @@ class ConnectionTest extends TestCase
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Json decode failed. Got: InvalidJson');
 
-        $connection->parseResponse($response);
+        $connection->parseResponse($response, new Request('GET', '/foo'));
     }
 
     public function testParseResponseExtractsMeta(): void
@@ -123,7 +124,7 @@ class ConnectionTest extends TestCase
 
         $response = new Response(200, [], json_encode($responseBody));
 
-        $this->assertEquals([], $connection->parseResponse($response));
+        $this->assertEquals([], $connection->parseResponse($response, new Request('GET', '/foo')));
         $this->assertInstanceOf(Meta::class, $connection->meta);
     }
 
@@ -139,7 +140,7 @@ class ConnectionTest extends TestCase
 
         $response = new Response(200, [], json_encode($responseBody));
 
-        $this->assertEquals(['foo' => 'bar'], $connection->parseResponse($response));
+        $this->assertEquals(['foo' => 'bar'], $connection->parseResponse($response, new Request('GET', '/foo')));
 
         $responseBody = [
             'foo' => 'bar',
@@ -147,7 +148,7 @@ class ConnectionTest extends TestCase
 
         $response = new Response(200, [], json_encode($responseBody));
 
-        $this->assertEquals(['foo' => 'bar'], $connection->parseResponse($response));
+        $this->assertEquals(['foo' => 'bar'], $connection->parseResponse($response, new Request('GET', '/foo')));
     }
 
     public function testTokensAreAcquiredWithAuthorizationCode(): void

@@ -443,19 +443,19 @@ class Connection
 
         $response = $this->getTransport()->send($request);
 
-        return $this->parseResponse($response);
+        return $this->parseResponse($response, $request);
     }
 
     /**
      * @return array<string, mixed|array<string|mixed>>
      * @throws SendyException
      */
-    public function parseResponse(Response $response): array
+    public function parseResponse(Response $response, Request $request): array
     {
         $this->extractRateLimits($response);
         $this->extractSendyHeaders($response);
 
-        if ($exception = $response->toException()) {
+        if ($exception = $response->toException($request)) {
             throw $exception;
         }
 
