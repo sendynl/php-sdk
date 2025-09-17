@@ -6,6 +6,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 
@@ -51,7 +52,7 @@ class Psr18Transport implements TransportInterface
         try {
             $psrResponse = $this->client->sendRequest($psrRequest);
         } catch (\Throwable $e) {
-            throw new \Sendy\Api\Exceptions\TransportException($e->getMessage(), $e->getCode(), $e);
+            throw new TransportException($e->getMessage(), $e->getCode(), $e);
         }
 
         return new Response(

@@ -78,11 +78,7 @@ class Connection
 
     public function getTransport(): TransportInterface
     {
-        if ($this->transport instanceof TransportInterface) {
-            return $this->transport;
-        }
-
-        return $this->transport = TransportFactory::create();
+        return $this->transport ??= TransportFactory::create();
     }
 
     public function setTransport(TransportInterface $transport): void
@@ -163,9 +159,8 @@ class Connection
 
     /**
      * @param mixed|null $state
-     * @return Connection
      */
-    public function setState($state)
+    public function setState($state): Connection
     {
         $this->state = $state;
 

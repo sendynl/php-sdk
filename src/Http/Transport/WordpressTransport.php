@@ -2,6 +2,7 @@
 
 namespace Sendy\Api\Http\Transport;
 
+use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 
@@ -26,7 +27,7 @@ class WordpressTransport implements TransportInterface
         $response = wp_remote_request($request->getUrl(), $args);
 
         if (is_wp_error($response)) {
-            throw new \Sendy\Api\Exceptions\TransportException($response->get_error_message());
+            throw new TransportException($response->get_error_message());
         }
 
         return new Response(

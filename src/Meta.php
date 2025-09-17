@@ -2,7 +2,7 @@
 
 namespace Sendy\Api;
 
-class Meta
+final class Meta
 {
     public int $currentPage;
 

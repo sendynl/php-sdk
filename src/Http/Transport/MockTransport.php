@@ -10,9 +10,9 @@ class MockTransport implements TransportInterface
     private ?Response $response;
 
     /**
-     * @var Request[]
+     * @var list<Request>
      */
-    private $requests = [];
+    private array $requests = [];
 
     public function __construct(?Response $response = null)
     {

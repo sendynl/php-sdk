@@ -4,7 +4,7 @@ namespace Sendy\Api\Resources;
 
 use Sendy\Api\Exceptions\SendyException;
 
-class Parcelshop extends Resource
+final class Parcelshop extends Resource
 {
     /**
      * List parcel shops

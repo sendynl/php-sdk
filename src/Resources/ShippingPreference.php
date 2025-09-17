@@ -4,7 +4,7 @@ namespace Sendy\Api\Resources;
 
 use Sendy\Api\Exceptions\SendyException;
 
-class ShippingPreference extends Resource
+final class ShippingPreference extends Resource
 {
     /**
      * List all shipping preferences

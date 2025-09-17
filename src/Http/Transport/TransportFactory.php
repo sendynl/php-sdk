@@ -8,7 +8,7 @@ final class TransportFactory
 {
     public static function create(): TransportInterface
     {
-        if (class_exists(\Symfony\Component\HttpClient\HttpClient::class)) {
+        if (class_exists(\Symfony\Component\HttpClient\Psr18Client::class)) {
             try {
                 return self::createSymfonyTransport();
             } catch (\LogicException $exception) {

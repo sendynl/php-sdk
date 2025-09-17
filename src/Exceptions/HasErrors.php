@@ -4,11 +4,11 @@ namespace Sendy\Api\Exceptions;
 
 trait HasErrors
 {
-    /** @var array<string, string[]> */
+    /** @var array<string, list<string>> */
     private array $errors = [];
 
     /**
-     * @param string[][] $errors
+     * @param array<string, list<string>> $errors
      */
     final public function __construct(
         string $message = '',
@@ -22,7 +22,7 @@ trait HasErrors
     }
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, list<string>>
      */
     public function getErrors(): array
     {

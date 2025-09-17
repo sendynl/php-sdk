@@ -4,7 +4,7 @@ namespace Sendy\Api\Resources;
 
 use Sendy\Api\Exceptions\SendyException;
 
-class Service extends Resource
+final class Service extends Resource
 {
     /**
      * List services associated with a carrier

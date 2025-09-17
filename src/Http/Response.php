@@ -2,7 +2,6 @@
 
 namespace Sendy\Api\Http;
 
-use Sendy\Api\ApiException;
 use Sendy\Api\Exceptions\ClientException;
 use Sendy\Api\Exceptions\HttpException;
 use Sendy\Api\Exceptions\JsonException;

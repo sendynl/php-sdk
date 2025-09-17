@@ -3,6 +3,8 @@
 namespace Sendy\Api\Http\Transport;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 use Sendy\Api\Exceptions\TransportException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
@@ -16,10 +18,10 @@ class LaravelTransport implements TransportInterface
     public function send(Request $request): Response
     {
         $headers = $request->getHeaders();
-        $contentType = \Illuminate\Support\Arr::pull($headers, 'Content-Type', 'application/json');
+        $contentType = Arr::pull($headers, 'Content-Type', 'application/json');
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
+            $response = Http::withHeaders($headers)
                 ->withBody($request->getBody(), $contentType)
                 ->withMethod($request->getMethod())
                 ->withUrl($request->getUrl())
