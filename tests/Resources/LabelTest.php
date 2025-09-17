@@ -24,7 +24,7 @@ class LabelTest extends TestCase
 
         $this->assertEquals(
             'https://app.sendy.nl/api/labels?ids%5B0%5D=123456',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
 
         $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
@@ -42,7 +42,7 @@ class LabelTest extends TestCase
 
         $this->assertEquals(
             'https://app.sendy.nl/api/labels?ids%5B0%5D=123456&ids%5B1%5D=A4&ids%5B2%5D=top-left',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
 
         $this->assertEquals('GET', $transport->getLastRequest()->getMethod());

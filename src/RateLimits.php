@@ -14,12 +14,6 @@ final class RateLimits
 
     public int $reset;
 
-    /**
-     * @param int $retryAfter
-     * @param int $limit
-     * @param int $remaining
-     * @param int $reset
-     */
     public function __construct(int $retryAfter, int $limit, int $remaining, int $reset)
     {
         $this->retryAfter = $retryAfter;
@@ -36,7 +30,7 @@ final class RateLimits
             (int) ($headers['retry-after'][0] ?? 0),
             (int) ($headers['x-ratelimit-limit'][0] ?? 0),
             (int) ($headers['x-ratelimit-remaining'][0] ?? 0),
-            (int) ($headers['x-ratelimit-reset'][0] ?? 0)
+            (int) ($headers['x-ratelimit-reset'][0] ?? 0),
         );
     }
 }

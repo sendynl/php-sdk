@@ -17,8 +17,8 @@ final class TransportFactory
         }
 
         if (
-            class_exists(\GuzzleHttp\Client::class) &&
-            is_subclass_of(\GuzzleHttp\Client::class, ClientInterface::class)
+            class_exists(\GuzzleHttp\Client::class)
+            && is_subclass_of(\GuzzleHttp\Client::class, ClientInterface::class)
         ) {
             return self::createGuzzleTransport();
         }
@@ -28,7 +28,7 @@ final class TransportFactory
         }
 
         throw new \LogicException(
-            'No suitable HTTP client found.'
+            'No suitable HTTP client found.',
         );
     }
 
@@ -41,7 +41,7 @@ final class TransportFactory
             $httpFactory,
             $httpFactory,
             $httpFactory,
-            \GuzzleHttp\Utils::defaultUserAgent()
+            \GuzzleHttp\Utils::defaultUserAgent(),
         );
     }
 
@@ -60,7 +60,7 @@ final class TransportFactory
             $client,
             $client,
             $client,
-            $userAgent
+            $userAgent,
         );
     }
 

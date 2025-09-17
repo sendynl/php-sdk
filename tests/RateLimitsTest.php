@@ -18,7 +18,7 @@ class RateLimitsTest extends TestCase
                 'X-RateLimit-Remaining' => '179',
                 'X-RateLimit-Reset' => '1681381136',
             ],
-            ''
+            '',
         );
 
         $this->assertInstanceOf(RateLimits::class, RateLimits::buildFromResponse($response));

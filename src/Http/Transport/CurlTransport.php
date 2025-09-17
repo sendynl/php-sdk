@@ -10,7 +10,7 @@ class CurlTransport implements TransportInterface
 {
     public function send(Request $request): Response
     {
-        if (!extension_loaded('curl')) {
+        if (! extension_loaded('curl')) {
             throw new TransportException('cURL PHP extension is not loaded.');
         }
 
@@ -48,7 +48,7 @@ class CurlTransport implements TransportInterface
 
     public function getUserAgent(): string
     {
-        if (!extension_loaded('curl')) {
+        if (! extension_loaded('curl')) {
             return 'curl';
         }
 
@@ -72,8 +72,6 @@ class CurlTransport implements TransportInterface
 
     /**
      * Parses the raw header string into an associative array.
-     *
-     * @param string $rawHeaders
      *
      * @return array<string, list<string>>
      */

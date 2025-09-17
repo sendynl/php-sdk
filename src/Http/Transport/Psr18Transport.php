@@ -35,7 +35,7 @@ class Psr18Transport implements TransportInterface
     {
         $psrRequest = $this->requestFactory->createRequest(
             $request->getMethod(),
-            $this->uriFactory->createUri($request->getUrl())
+            $this->uriFactory->createUri($request->getUrl()),
         );
 
         foreach ($request->getHeaders() as $name => $value) {
@@ -44,7 +44,7 @@ class Psr18Transport implements TransportInterface
 
         if ($body = $request->getBody()) {
             $psrRequest = $psrRequest->withBody(
-                $this->streamFactory->createStream($body)
+                $this->streamFactory->createStream($body),
             );
         }
 

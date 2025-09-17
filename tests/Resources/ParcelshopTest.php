@@ -24,9 +24,9 @@ class ParcelshopTest extends TestCase
 
         $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
         $this->assertEquals(
-            'https://app.sendy.nl/api/parcel_shops' .
-            '?carriers%5B0%5D=DHL&latitude=52.040588&longitude=5.56489&country=NL&postal_code=3905KW',
-            $transport->getLastRequest()->getUrl()
+            'https://app.sendy.nl/api/parcel_shops'
+            . '?carriers%5B0%5D=DHL&latitude=52.040588&longitude=5.56489&country=NL&postal_code=3905KW',
+            $transport->getLastRequest()->getUrl(),
         );
     }
 }

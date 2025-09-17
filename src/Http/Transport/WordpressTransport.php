@@ -32,7 +32,7 @@ class WordpressTransport implements TransportInterface
         return new Response(
             wp_remote_retrieve_response_code($response),
             wp_remote_retrieve_headers($response),
-            wp_remote_retrieve_body($response)
+            wp_remote_retrieve_body($response),
         );
     }
 

@@ -49,8 +49,8 @@ class WebhookTest extends TestCase
                     'url' => 'https://example.com/webhook',
                     'events' => [
                         'shipment.generated',
-                    ]
-                ]
+                    ],
+                ],
             ])),
         );
 
@@ -67,7 +67,7 @@ class WebhookTest extends TestCase
         $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
         $this->assertEquals(
             '{"url":"https:\/\/example.com\/webhook","events":["shipments.generated"]}',
-            $transport->getLastRequest()->getBody()
+            $transport->getLastRequest()->getBody(),
         );
     }
 
@@ -80,8 +80,8 @@ class WebhookTest extends TestCase
                     'url' => 'https://example.com/updated-webhook',
                     'events' => [
                         'shipment.generated',
-                    ]
-                ]
+                    ],
+                ],
             ])),
         );
 
@@ -98,7 +98,7 @@ class WebhookTest extends TestCase
         $this->assertEquals('PUT', $transport->getLastRequest()->getMethod());
         $this->assertEquals(
             '{"url":"https:\/\/example.com\/updated-webhook","events":["shipment.generated"]}',
-            $transport->getLastRequest()->getBody()
+            $transport->getLastRequest()->getBody(),
         );
     }
 }

@@ -19,21 +19,21 @@ class ConnectionTest extends TestCase
         $connection = $this->createConnection();
         $this->assertEquals(
             sprintf('SendySDK/3.0.0 PHP/%s GuzzleHttp/7', phpversion()),
-            $connection->createRequest('GET', '/')->getHeaders()['user-agent']
+            $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setUserAgentAppendix('WooCommerce/6.2');
         $this->assertEquals(
             sprintf('SendySDK/3.0.0 PHP/%s GuzzleHttp/7 WooCommerce/6.2', phpversion()),
-            $connection->createRequest('GET', '/')->getHeaders()['user-agent']
+            $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setOauthClient(true);
         $this->assertEquals(
             sprintf('SendySDK/3.0.0 PHP/%s OAuth/2.0 GuzzleHttp/7', phpversion()),
-            $connection->createRequest('GET', '/')->getHeaders()['user-agent']
+            $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
     }
 
@@ -79,7 +79,7 @@ class ConnectionTest extends TestCase
         // phpcs:disable
         $this->assertEquals(
             'https://app.sendy.nl/oauth/authorize?client_id=client-id&redirect_uri=https%3A%2F%2Fexample.com&response_type=code&state=state',
-            $connection->getAuthorizationUrl()
+            $connection->getAuthorizationUrl(),
         );
         // phpcs:enable
     }
@@ -118,7 +118,7 @@ class ConnectionTest extends TestCase
                 'path' => '/foo/bar',
                 'per_page' => 25,
                 'to' => 25,
-                'total' => 27
+                'total' => 27,
             ],
         ];
 
@@ -135,7 +135,7 @@ class ConnectionTest extends TestCase
         $responseBody = [
             'data' => [
                 'foo' => 'bar',
-            ]
+            ],
         ];
 
         $response = new Response(200, [], json_encode($responseBody));
@@ -160,7 +160,7 @@ class ConnectionTest extends TestCase
                 'access_token' => 'FromAuthCode',
                 'refresh_token' => 'RefreshToken',
                 'expires_in' => 3600,
-            ]))
+            ])),
         );
 
         $connection->setTransport($transport);
@@ -188,7 +188,7 @@ class ConnectionTest extends TestCase
                 'access_token' => 'NewAccessToken',
                 'refresh_token' => 'NewRefreshToken',
                 'expires_in' => 3600,
-            ]))
+            ])),
         );
 
         $connection->setTransport($transport);
@@ -205,7 +205,7 @@ class ConnectionTest extends TestCase
 
         $this->assertEquals(
             'https://app.sendy.nl/oauth/token',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
     }
 
@@ -218,7 +218,7 @@ class ConnectionTest extends TestCase
                 'access_token' => 'NewAccessToken',
                 'refresh_token' => 'NewRefreshToken',
                 'expires_in' => 3600,
-            ]))
+            ])),
         );
 
         $connection->setTransport($transport);
@@ -242,7 +242,7 @@ class ConnectionTest extends TestCase
         $connection->setAccessToken('PersonalAccessToken');
 
         $transport = new MockTransport(
-            new Response(200, [], json_encode(['foo' => 'bar']))
+            new Response(200, [], json_encode(['foo' => 'bar'])),
         );
 
         $connection->setTransport($transport);
@@ -258,7 +258,7 @@ class ConnectionTest extends TestCase
         $connection->setAccessToken('PersonalAccessToken');
 
         $transport = new MockTransport(
-            new Response(200, [], json_encode(['foo' => 'bar']))
+            new Response(200, [], json_encode(['foo' => 'bar'])),
         );
 
         $connection->setTransport($transport);
@@ -274,7 +274,7 @@ class ConnectionTest extends TestCase
         $connection->setAccessToken('PersonalAccessToken');
 
         $transport = new MockTransport(
-            new Response(418, [], '{}')
+            new Response(418, [], '{}'),
         );
 
         $connection->setTransport($transport);
@@ -291,7 +291,7 @@ class ConnectionTest extends TestCase
         $connection->setAccessToken('PersonalAccessToken');
 
         $transport = new MockTransport(
-            new Response(500, [], '{"message": "Something went wrong"}')
+            new Response(500, [], '{"message": "Something went wrong"}'),
         );
 
         $connection->setTransport($transport);
@@ -344,7 +344,7 @@ class ConnectionTest extends TestCase
         $connection->setAccessToken('PersonalAccessToken');
 
         $mockTransport = new MockTransport(
-            new Response(201, [], json_encode(['foo' => 'bar']))
+            new Response(201, [], json_encode(['foo' => 'bar'])),
         );
 
         $connection->setTransport($mockTransport);

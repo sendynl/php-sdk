@@ -33,7 +33,6 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    /** @var TransportInterface|null */
     private ?TransportInterface $transport = null;
 
     /** @var string The Client ID as UUID */
@@ -66,7 +65,6 @@ class Connection
     /** @var callable($this) */
     private $tokenUpdateCallback;
 
-    /** @var bool */
     private bool $oauthClient = false;
 
     public ?Meta $meta;
@@ -78,9 +76,6 @@ class Connection
      */
     public array $sendyHeaders = [];
 
-    /**
-     * @return TransportInterface
-     */
     public function getTransport(): TransportInterface
     {
         if ($this->transport instanceof TransportInterface) {
@@ -90,18 +85,11 @@ class Connection
         return $this->transport = TransportFactory::create();
     }
 
-    /**
-     * @param TransportInterface $transport
-     */
     public function setTransport(TransportInterface $transport): void
     {
         $this->transport = $transport;
     }
 
-    /**
-     * @param string $userAgentAppendix
-     * @return Connection
-     */
     public function setUserAgentAppendix(string $userAgentAppendix): Connection
     {
         $this->userAgentAppendix = $userAgentAppendix;
@@ -109,10 +97,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $clientId
-     * @return Connection
-     */
     public function setClientId(string $clientId): Connection
     {
         $this->clientId = $clientId;
@@ -120,10 +104,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $clientSecret
-     * @return Connection
-     */
     public function setClientSecret(string $clientSecret): Connection
     {
         $this->clientSecret = $clientSecret;
@@ -131,10 +111,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $authorizationCode
-     * @return Connection
-     */
     public function setAuthorizationCode(string $authorizationCode): Connection
     {
         $this->authorizationCode = $authorizationCode;
@@ -142,18 +118,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getAccessToken(): string
     {
         return $this->accessToken;
     }
 
-    /**
-     * @param string $accessToken
-     * @return Connection
-     */
     public function setAccessToken(string $accessToken): Connection
     {
         $this->accessToken = $accessToken;
@@ -161,18 +130,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getTokenExpires(): int
     {
         return $this->tokenExpires;
     }
 
-    /**
-     * @param int $tokenExpires
-     * @return Connection
-     */
     public function setTokenExpires(int $tokenExpires): Connection
     {
         $this->tokenExpires = $tokenExpires;
@@ -180,18 +142,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getRefreshToken(): string
     {
         return $this->refreshToken;
     }
 
-    /**
-     * @param string $refreshToken
-     * @return Connection
-     */
     public function setRefreshToken(string $refreshToken): Connection
     {
         $this->refreshToken = $refreshToken;
@@ -199,10 +154,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $redirectUrl
-     * @return Connection
-     */
     public function setRedirectUrl(string $redirectUrl): Connection
     {
         $this->redirectUrl = $redirectUrl;
@@ -221,10 +172,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param callable $tokenUpdateCallback
-     * @return Connection
-     */
     public function setTokenUpdateCallback(callable $tokenUpdateCallback): Connection
     {
         $this->tokenUpdateCallback = $tokenUpdateCallback;
@@ -234,31 +181,22 @@ class Connection
 
     /**
      * Build the URL to authorize the application
-     *
-     * @return string
      */
     public function getAuthorizationUrl(): string
     {
         return self::BASE_URL . self::AUTH_URL . '?' . http_build_query([
-                'client_id' => $this->clientId,
-                'redirect_uri' => $this->redirectUrl,
-                'response_type' => 'code',
-                'state' => $this->state,
-            ]);
+            'client_id' => $this->clientId,
+            'redirect_uri' => $this->redirectUrl,
+            'response_type' => 'code',
+            'state' => $this->state,
+        ]);
     }
 
-    /**
-     * @return bool
-     */
     public function isOauthClient(): bool
     {
         return $this->oauthClient;
     }
 
-    /**
-     * @param bool $oauthClient
-     * @return Connection
-     */
     public function setOauthClient(bool $oauthClient): Connection
     {
         $this->oauthClient = $oauthClient;
@@ -311,7 +249,7 @@ class Connection
 
         $body = $this->performRequest(
             $this->createRequest('POST', self::BASE_URL . self::TOKEN_URL, json_encode($parameters)),
-            false
+            false,
         );
 
         $this->accessToken = $body['access_token'];
@@ -324,12 +262,8 @@ class Connection
     }
 
     /**
-     * @param string $method
-     * @param string $endpoint
-     * @param string|null $body
      * @param array<string, string|string[]> $params
      * @param array<string, string> $headers
-     * @return Request
      */
     public function createRequest(
         string $method,
@@ -388,7 +322,7 @@ class Connection
     {
         $url = self::API_URL . $url;
 
-        if (!is_null($body)) {
+        if (! is_null($body)) {
             $body = json_encode($body);
         }
 
@@ -491,15 +425,12 @@ class Connection
         $this->sendyHeaders = array_filter(
             $response->getHeaders(),
             fn(string $key) => substr($key, 0, 8) === 'x-sendy-',
-            ARRAY_FILTER_USE_KEY
+            ARRAY_FILTER_USE_KEY,
         );
     }
 
     /**
      * Magic method to fetch the resource object
-     *
-     * @param string $resource
-     * @return Resource
      */
     public function __get(string $resource): Resource
     {

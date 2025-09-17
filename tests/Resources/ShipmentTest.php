@@ -81,7 +81,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals(
             'https://app.sendy.nl/api/shipments/preference?generateDirectly=0',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
         $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
         $this->assertEquals('{"foo":"bar"}', $transport->getLastRequest()->getBody());
@@ -98,7 +98,7 @@ class ShipmentTest extends TestCase
         $this->assertEquals([], $resource->createFromPreference(['foo' => 'bar']));
         $this->assertEquals(
             'https://app.sendy.nl/api/shipments/preference?generateDirectly=1',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
     }
 
@@ -173,7 +173,7 @@ class ShipmentTest extends TestCase
 
         $this->assertEquals(
             'https://app.sendy.nl/api/shipments/1337/documents',
-            $transport->getLastRequest()->getUrl()
+            $transport->getLastRequest()->getUrl(),
         );
         $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }

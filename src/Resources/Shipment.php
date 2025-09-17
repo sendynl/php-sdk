@@ -138,7 +138,6 @@ final class Shipment extends Resource
      *
      * Get a PDF with the export documents for a specific shipment
      *
-     * @param string $id
      * @return array<string, mixed|array<string|mixed>>
      * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.shipments.documents.index

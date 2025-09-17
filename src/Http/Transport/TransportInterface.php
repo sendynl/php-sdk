@@ -8,8 +8,6 @@ use Sendy\Api\Http\Response;
 interface TransportInterface
 {
     /**
-     * @param Request $request
-     *
      * @throws \Sendy\Api\Exceptions\TransportException
      */
     public function send(Request $request): Response;

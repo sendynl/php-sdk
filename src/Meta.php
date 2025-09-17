@@ -18,15 +18,6 @@ class Meta
 
     public int $total;
 
-    /**
-     * @param int $currentPage
-     * @param int $from
-     * @param int $lastPage
-     * @param string $path
-     * @param int $perPage
-     * @param int $to
-     * @param int $total
-     */
     public function __construct(
         int $currentPage,
         int $from,
@@ -47,7 +38,6 @@ class Meta
 
     /**
      * @param array<string, int|string> $meta
-     * @return Meta
      */
     public static function buildFromResponse(array $meta): Meta
     {
@@ -58,7 +48,7 @@ class Meta
             $meta['path'],
             $meta['per_page'],
             $meta['to'],
-            $meta['total']
+            $meta['total'],
         );
     }
 }

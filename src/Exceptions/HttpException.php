@@ -25,7 +25,7 @@ abstract class HttpException extends \Exception implements SendyException
             $message ?? $response->getSummary(),
             $response->getStatusCode(),
             null,
-            $response->getErrors()
+            $response->getErrors(),
         );
 
         $exception->request = $request;

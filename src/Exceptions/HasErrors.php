@@ -8,9 +8,6 @@ trait HasErrors
     private array $errors = [];
 
     /**
-     * @param string $message
-     * @param int $code
-     * @param \Throwable|null $previous
      * @param string[][] $errors
      */
     final public function __construct(

@@ -91,7 +91,7 @@ final class Response
         $this->statusCode = $statusCode;
         $this->headers = array_map(
             fn($value) => is_array($value) ? $value : [$value],
-            array_change_key_case($headers, CASE_LOWER)
+            array_change_key_case($headers, CASE_LOWER),
         );
         $this->body = $body;
     }
@@ -164,7 +164,7 @@ final class Response
             return ValidationException::fromRequestAndResponse(
                 $request,
                 $this,
-                $this->getDecodedBody()['message'] ?? 'Validation failed'
+                $this->getDecodedBody()['message'] ?? 'Validation failed',
             );
         }
 

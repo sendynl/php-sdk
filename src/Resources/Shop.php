@@ -26,7 +26,6 @@ class Shop extends Resource
      * Get a specific shop by its UUID
      *
      * @link https://app.sendy.nl/api/docs#tag/Shops/operation/api.shops.show
-     * @param string $id
      * @return array<string, mixed|array<string|mixed>>
      * @throws SendyException
      */
