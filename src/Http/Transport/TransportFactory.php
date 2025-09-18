@@ -3,6 +3,9 @@
 namespace Sendy\Api\Http\Transport;
 
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 
 final class TransportFactory
 {
@@ -34,10 +37,20 @@ final class TransportFactory
 
     public static function createGuzzleTransport(): Psr18Transport
     {
+        assert(class_exists(\GuzzleHttp\Psr7\HttpFactory::class));
+        assert(class_exists(\GuzzleHttp\Client::class));
+        assert(class_exists(\GuzzleHttp\Utils::class));
+
         $httpFactory = new \GuzzleHttp\Psr7\HttpFactory();
+        $client = new \GuzzleHttp\Client();
+
+        assert($client instanceof ClientInterface);
+        assert($httpFactory instanceof RequestFactoryInterface);
+        assert($httpFactory instanceof StreamFactoryInterface);
+        assert($httpFactory instanceof UriFactoryInterface);
 
         return new Psr18Transport(
-            new \GuzzleHttp\Client(),
+            $client,
             $httpFactory,
             $httpFactory,
             $httpFactory,
@@ -47,7 +60,14 @@ final class TransportFactory
 
     public static function createSymfonyTransport(): Psr18Transport
     {
+        assert(class_exists(\Symfony\Component\HttpClient\Psr18Client::class));
+
         $client = new \Symfony\Component\HttpClient\Psr18Client();
+
+        assert($client instanceof ClientInterface);
+        assert($client instanceof RequestFactoryInterface);
+        assert($client instanceof StreamFactoryInterface);
+        assert($client instanceof UriFactoryInterface);
 
         $userAgent = 'SymfonyHttpClient';
 

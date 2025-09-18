@@ -42,7 +42,7 @@ final class Request
 
     public function getUrl(): string
     {
-        if (str_starts_with($this->url, '/')) {
+        if (substr($this->url, 0, 1) === '/') {
             return Connection::BASE_URL . $this->url;
         }
 
