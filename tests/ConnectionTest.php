@@ -16,23 +16,26 @@ class ConnectionTest extends TestCase
 {
     public function testUserAgentIsSet(): void
     {
+        $phpVersion = phpversion();
+        $curlVersion = curl_version()['version'];
+
         $connection = $this->createConnection();
         $this->assertEquals(
-            sprintf('SendySDK/3.0.0 PHP/%s GuzzleHttp/7', phpversion()),
+            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setUserAgentAppendix('WooCommerce/6.2');
         $this->assertEquals(
-            sprintf('SendySDK/3.0.0 PHP/%s GuzzleHttp/7 WooCommerce/6.2', phpversion()),
+            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion} WooCommerce/6.2",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setOauthClient(true);
         $this->assertEquals(
-            sprintf('SendySDK/3.0.0 PHP/%s OAuth/2.0 GuzzleHttp/7', phpversion()),
+            "SendySDK/3.0.0 PHP/{$phpVersion} OAuth/2.0 curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
     }
@@ -41,11 +44,11 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection();
 
-        $connection->setTokenExpires(time() - 3600);
+        $connection->setTokenExpires(time() - 600);
 
         $this->assertTrue($connection->tokenHasExpired());
 
-        $connection->setTokenExpires(time() + 3600);
+        $connection->setTokenExpires(time() + 600);
 
         $this->assertFalse($connection->tokenHasExpired());
     }
@@ -359,7 +362,7 @@ class ConnectionTest extends TestCase
     private function createConnection(): Connection
     {
         $connection = new Connection();
-        $connection->setTransport(TransportFactory::createGuzzleTransport());
+        $connection->setTransport(TransportFactory::createCurlTransport());
 
         return $connection;
     }
