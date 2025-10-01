@@ -81,9 +81,11 @@ class Connection
         return $this->transport ??= TransportFactory::create();
     }
 
-    public function setTransport(TransportInterface $transport): void
+    public function setTransport(TransportInterface $transport): Connection
     {
         $this->transport = $transport;
+
+        return $this;
     }
 
     public function setUserAgentAppendix(string $userAgentAppendix): Connection
