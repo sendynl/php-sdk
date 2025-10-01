@@ -5,3 +5,5 @@
 /phpcs.xml.dist export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml.dist export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/bump-version.sh export-ignore
