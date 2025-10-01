@@ -27,7 +27,7 @@ class Parcelshop extends Resource
         float $latitude,
         float $longitude,
         string $country,
-        string $postalCode = null
+        ?string $postalCode = null
     ): array {
         $params = [
             'carriers' => $carriers,
