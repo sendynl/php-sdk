@@ -52,7 +52,7 @@ class ConnectionTest extends TestCase
 
         $this->assertTrue($connection->tokenHasExpired());
 
-        $connection->setTokenExpires(time() + 3600);
+        $connection->setTokenExpires(time() + 60);
 
         $this->assertFalse($connection->tokenHasExpired());
     }
