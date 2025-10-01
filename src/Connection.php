@@ -355,8 +355,8 @@ class Connection
         string $method,
         string $endpoint,
         $body = null,
-        array $params = null,
-        array $headers = null
+        ?array $params = null,
+        ?array $headers = null
     ): Request {
         $headers = array_merge($headers, [
             'Accept'       => 'application/json',
@@ -394,14 +394,14 @@ class Connection
 
     /**
      * @param UriInterface|string $url
-     * @param array<string, mixed|mixed[]> $body
+     * @param array<string, mixed|mixed[]>|null $body
      * @param array<string, mixed|mixed[]> $params
      * @param array<string, mixed|mixed[]> $headers
      * @return array<string, mixed|array<string|mixed>>
      * @throws ApiException
      * @throws GuzzleException
      */
-    public function post($url, array $body = null, array $params = [], array $headers = []): array
+    public function post($url, ?array $body = null, array $params = [], array $headers = []): array
     {
         $url = self::API_URL . $url;
 

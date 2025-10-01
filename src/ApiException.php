@@ -13,7 +13,7 @@ final class ApiException extends \Exception
      * @param \Throwable|null $previous
      * @param string[][] $errors
      */
-    public function __construct(string $message = "", int $code = 0, \Throwable $previous = null, array $errors = [])
+    public function __construct(string $message = "", int $code = 0, ?\Throwable $previous = null, array $errors = [])
     {
         $this->errors = $errors;
 
