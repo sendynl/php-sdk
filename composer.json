@@ -45,7 +45,7 @@
     "scripts": {
         "lint": "vendor/bin/php-cs-fixer fix --dry-run --diff",
         "fix": "vendor/bin/php-cs-fixer fix",
-        "analyze": "vendor/bin/phpstan --xdebug",
+        "analyze": "vendor/bin/phpstan",
         "test": "vendor/bin/phpunit"
     }
 }
