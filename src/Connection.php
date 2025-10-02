@@ -266,8 +266,8 @@ class Connection
         string $method,
         string $endpoint,
         ?string $body = null,
-        ?array $params = [],
-        ?array $headers = []
+        array $params = [],
+        array $headers = []
     ): Request {
         $userAgent = sprintf("SendySDK/%s PHP/%s", self::VERSION, phpversion());
 
