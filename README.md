@@ -99,6 +99,51 @@ $connection->setClientId('your-client-id')
     });
 ```
 
+### Transports
+
+By default, the SDK will create a `Transport` with the `TransportFactory` if you do not supply one.
+
+To create your own `Transport` you have to create a class which implements `Sendy\Api\Http\Tranport\TransportInterface`.
+
+An example for the Laravel framework could look like this
+
+```php
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
+use Sendy\Api\Exceptions\TransportException;
+use Sendy\Api\Http\Request;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\TransportInterface
+
+class LaravelTransport implements TransportInterface
+{
+    public function send(Request $request): Response
+    {
+        $headers = $request->getHeaders();
+        $contentType = Arr::pull($headers, 'Content-Type', 'application/json');
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->withBody($request->getBody(), $contentType)
+                ->withMethod($request->getMethod())
+                ->withUrl($request->getUrl())
+                ->send();
+        } catch (\Throwable $e) {
+            throw new TransportException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        return new Response($response->status(), $response->headers(), $response->body());
+    }
+    
+    public function getUserAgent() : string
+    {
+        return 'LaravelHttpClient/' . Application::VERSION;
+    }
+}
+
+```
+
 ### Endpoints
 
 The endpoints in the API documentation are mapped to the resource as defined in the Resources directory. Please consult
