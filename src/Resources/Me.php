@@ -2,6 +2,8 @@
 
 namespace Sendy\Api\Resources;
 
+use Sendy\Api\Exceptions\SendyException;
+
 final class Me extends Resource
 {
     /**
@@ -11,6 +13,7 @@ final class Me extends Resource
      *
      * @link https://app.sendy.nl/api/docs#tag/User/operation/api.me
      * @return array<string, mixed|array<string|mixed>>
+     * @throws SendyException
      */
     public function get(): array
     {

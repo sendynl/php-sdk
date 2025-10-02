@@ -2,14 +2,15 @@
 
 namespace Sendy\Api\Resources;
 
+use Sendy\Api\Exceptions\SendyException;
+
 final class Webhook extends Resource
 {
     /**
      * List all webhooks
      *
+     * @throws SendyException
      * @return array<string, mixed|array<string|mixed>>
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Sendy\Api\ApiException
      * @link https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.index
      */
     public function list(): array
@@ -21,9 +22,9 @@ final class Webhook extends Resource
      * Create a new webhook
      *
      * @param array<string, mixed|array<string|mixed>> $data
+     *
+     * @throws SendyException
      * @return array<string, mixed|array<string|mixed>>
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Sendy\Api\ApiException
      * @link https://app.sendy.nl/api/docs#tag/Webhooks/operation/api.webhooks.store
      */
     public function create(array $data): array
@@ -35,9 +36,9 @@ final class Webhook extends Resource
      * Delete a webhook
      *
      * @param string $id The ID of the webhook
+     *
+     * @throws SendyException
      * @return array<empty>
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Sendy\Api\ApiException
      */
     public function delete(string $id): array
     {
@@ -49,9 +50,9 @@ final class Webhook extends Resource
      *
      * @param string $id The id of the webhook to be updated
      * @param array<string, mixed|array<string|mixed>> $data
+     *
+     * @throws SendyException
      * @return array<string, mixed|array<string|mixed>>
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Sendy\Api\ApiException
      */
     public function update(string $id, array $data): array
     {

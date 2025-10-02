@@ -2,11 +2,10 @@
 
 namespace Sendy\Api\Tests\Resources;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use Sendy\Api\Resources\Label;
-use Sendy\Api\Resources\Me;
 use PHPUnit\Framework\TestCase;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\MockTransport;
+use Sendy\Api\Resources\Me;
 use Sendy\Api\Tests\TestsEndpoints;
 
 class MeTest extends TestCase
@@ -15,15 +14,15 @@ class MeTest extends TestCase
 
     public function testGet(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Me($this->buildConnectionWithMockHandler($handler));
+        $resource = new Me($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->get());
 
-        $this->assertEquals('/api/me', (string) $handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/me', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 }

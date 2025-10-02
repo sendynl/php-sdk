@@ -2,10 +2,9 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
-class Service extends Resource
+final class Service extends Resource
 {
     /**
      * List services associated with a carrier
@@ -14,8 +13,7 @@ class Service extends Resource
      *
      * @param int $carrierId The id of the carrier
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Services/operation/api.carriers.services.index
      */
     public function list(int $carrierId): array

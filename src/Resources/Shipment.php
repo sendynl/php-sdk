@@ -2,8 +2,7 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 use Sendy\Api\Meta;
 
 final class Shipment extends Resource
@@ -15,8 +14,7 @@ final class Shipment extends Resource
      *
      * @param int $page The page number to fetch
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.index
      * @see Meta
      */
@@ -32,8 +30,7 @@ final class Shipment extends Resource
      *
      * @param string $id The UUID of the shipment
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.show
      */
     public function get(string $id): array
@@ -49,8 +46,7 @@ final class Shipment extends Resource
      * @param string $id The UUID of the shipment
      * @param array<string, mixed|array<string,mixed>> $data
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      */
     public function update(string $id, array $data): array
     {
@@ -68,8 +64,7 @@ final class Shipment extends Resource
      *
      * @param string $id The UUID of the shipment
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.destroy
      */
     public function delete(string $id): array
@@ -85,8 +80,7 @@ final class Shipment extends Resource
      * @param array<string, mixed|array<string,mixed>> $data
      * @param bool $generateDirectly Should the shipment be generated right away. This will increase the response time.
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.preference
      * @see ShippingPreference
      */
@@ -100,8 +94,7 @@ final class Shipment extends Resource
      *
      * @param array<string, mixed|array<string,mixed>> $data
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.smart-rule
      */
     public function createWithSmartRules(array $data): array
@@ -117,8 +110,7 @@ final class Shipment extends Resource
      * @param string $id The UUID of the shipment
      * @param bool $asynchronous Whether the shipping label should be generated asynchronously
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Shipments/operation/api.shipments.generate
      */
     public function generate(string $id, bool $asynchronous = true): array
@@ -133,8 +125,7 @@ final class Shipment extends Resource
      *
      * @param string $id The UUID of the shipment
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.shipments.labels.index
      */
     public function labels(string $id): array
@@ -147,10 +138,8 @@ final class Shipment extends Resource
      *
      * Get a PDF with the export documents for a specific shipment
      *
-     * @param string $id
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Documents/operation/api.shipments.documents.index
      */
     public function documents(string $id): array

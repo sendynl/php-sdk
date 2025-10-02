@@ -2,10 +2,9 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
-class Parcelshop extends Resource
+final class Parcelshop extends Resource
 {
     /**
      * List parcel shops
@@ -18,8 +17,7 @@ class Parcelshop extends Resource
      * @param string $country The country code of the location.
      * @param string|null $postalCode The postal code of the location.
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Parcel-shops
      */
     public function list(

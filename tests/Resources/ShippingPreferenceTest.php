@@ -2,11 +2,10 @@
 
 namespace Sendy\Api\Tests\Resources;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use Sendy\Api\Resources\ShippingPreference;
 use PHPUnit\Framework\TestCase;
-use Sendy\Api\Resources\Shop;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\MockTransport;
+use Sendy\Api\Resources\ShippingPreference;
 use Sendy\Api\Tests\TestsEndpoints;
 
 class ShippingPreferenceTest extends TestCase
@@ -15,15 +14,15 @@ class ShippingPreferenceTest extends TestCase
 
     public function testList(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new ShippingPreference($this->buildConnectionWithMockHandler($handler));
+        $resource = new ShippingPreference($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->list());
 
-        $this->assertEquals('/api/shipping_preferences', (string) $handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/shipping_preferences', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 }

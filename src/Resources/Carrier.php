@@ -2,8 +2,7 @@
 
 namespace Sendy\Api\Resources;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Sendy\Api\ApiException;
+use Sendy\Api\Exceptions\SendyException;
 
 final class Carrier extends Resource
 {
@@ -13,8 +12,7 @@ final class Carrier extends Resource
      * Display all carriers in a list.
      *
      * @return array<string, mixed|array<string|mixed>>
-     * @throws GuzzleException
-     * @throws ApiException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Carriers/operation/api.carriers.index
      */
     public function list(): array
@@ -29,8 +27,7 @@ final class Carrier extends Resource
      *
      * @param int $id The id of the carrier
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      * @link https://app.sendy.nl/api/docs#tag/Carriers/operation/api.carriers.show
      */
     public function get(int $id): array

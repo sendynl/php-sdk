@@ -2,10 +2,10 @@
 
 namespace Sendy\Api\Tests\Resources;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use Sendy\Api\Resources\Shipment;
 use PHPUnit\Framework\TestCase;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\MockTransport;
+use Sendy\Api\Resources\Shipment;
 use Sendy\Api\Tests\TestsEndpoints;
 
 class ShipmentTest extends TestCase
@@ -14,148 +14,167 @@ class ShipmentTest extends TestCase
 
     public function testList(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->list());
 
-        $this->assertEquals('/api/shipments?page=1', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/shipments?page=1', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 
     public function testGet(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->get('1337'));
 
-        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 
     public function testUpdate(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->update('1337', ['foo' => 'bar']));
 
-        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('PUT', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('PUT', $transport->getLastRequest()->getMethod());
+        $this->assertEquals('{"foo":"bar"}', $transport->getLastRequest()->getBody());
     }
 
     public function testDelete(): void
     {
-        $handler = new MockHandler([
-            new Response(204),
-        ]);
+        $transport = new MockTransport(
+            new Response(204, [], ''),
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->delete('1337'));
 
-        $this->assertEquals('/api/shipments/1337', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('DELETE', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('DELETE', $transport->getLastRequest()->getMethod());
     }
 
     public function testCreateFromPreference(): void
     {
-        $handler = new MockHandler([
-            new Response(200, [], '{}'),
-            new Response(200, [], '{}'),
-        ]);
+        $transport = new MockTransport(
+            new Response(200, [], json_encode([])),
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->createFromPreference(['foo' => 'bar'], false));
 
         $this->assertEquals(
-            '/api/shipments/preference?generateDirectly=0',
-            (string)$handler->getLastRequest()->getUri()
+            'https://app.sendy.nl/api/shipments/preference?generateDirectly=0',
+            $transport->getLastRequest()->getUrl(),
         );
-        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
+        $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
+        $this->assertEquals('{"foo":"bar"}', $transport->getLastRequest()->getBody());
+    }
+
+    public function testCreateAndGenerateFromPreference(): void
+    {
+        $transport = new MockTransport(
+            new Response(200, [], json_encode([])),
+        );
+
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->createFromPreference(['foo' => 'bar']));
         $this->assertEquals(
-            '/api/shipments/preference?generateDirectly=1',
-            (string)$handler->getLastRequest()->getUri()
+            'https://app.sendy.nl/api/shipments/preference?generateDirectly=1',
+            $transport->getLastRequest()->getUrl(),
         );
     }
 
     public function testCreateWithSmartRules(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode(['foo' => 'bar'])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
-        $resource->createWithSmartRules(['foo' => 'bar']);
+        $this->assertEquals(['foo' => 'bar'], $resource->createWithSmartRules(['foo' => 'bar']));
 
-        $this->assertEquals('/api/shipments/smart-rule', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('{"foo":"bar"}', $handler->getLastRequest()->getBody()->getContents());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/smart-rule', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
+        $this->assertEquals('{"foo":"bar"}', $transport->getLastRequest()->getBody());
     }
 
-
-    public function testGenerate(): void
+    public function testGenerateAsynchronous(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], '{}'),
-            new Response(200, [], '{}'),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->generate('1337'));
 
-        $this->assertEquals('/api/shipments/1337/generate', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('{"asynchronous":true}', $handler->getLastRequest()->getBody()->getContents());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337/generate', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
+        $this->assertEquals('{"asynchronous":true}', $transport->getLastRequest()->getBody());
+    }
+
+    public function testGenerateSynchronous(): void
+    {
+        $transport = new MockTransport(
+            new Response(200, [], '{}'),
+        );
+
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->generate('1337', false));
 
-        $this->assertEquals('/api/shipments/1337/generate', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('{"asynchronous":false}', $handler->getLastRequest()->getBody()->getContents());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337/generate', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
+        $this->assertEquals('{"asynchronous":false}', $transport->getLastRequest()->getBody());
     }
 
     public function testLabels(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->labels('1337'));
 
-        $this->assertEquals('/api/shipments/1337/labels', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/shipments/1337/labels', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 
     public function testDocuments(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Shipment($this->buildConnectionWithMockHandler($handler));
+        $resource = new Shipment($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->documents('1337'));
 
-        $this->assertEquals('/api/shipments/1337/documents', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals(
+            'https://app.sendy.nl/api/shipments/1337/documents',
+            $transport->getLastRequest()->getUrl(),
+        );
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 }
