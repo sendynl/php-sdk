@@ -3,6 +3,7 @@
 namespace Sendy\Api;
 
 use Psr\Http\Message\UriInterface;
+use Sendy\Api\Exceptions\ClientException;
 use Sendy\Api\Exceptions\SendyException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
@@ -244,10 +245,21 @@ class Connection
             ];
         }
 
-        $body = $this->performRequest(
-            $this->createRequest('POST', self::BASE_URL . self::TOKEN_URL, json_encode($parameters)),
-            false,
-        );
+        try {
+            $body = $this->performRequest(
+                $this->createRequest('POST', self::BASE_URL . self::TOKEN_URL, json_encode($parameters)),
+                false,
+            );
+        } catch (ClientException $exception) {
+            // When the refresh token was refreshed in another process, it could occur that the connection still holds
+            // a valid refresh token with a revoked refresh token. When this occurs it is safe to use the valid access
+            // token.
+            if ($this->refreshTokenIsRevoked($exception->getResponse()) && $this->tokenExpires > time()) {
+                return;
+            }
+
+            throw $exception;
+        }
 
         $this->accessToken = $body['access_token'];
         $this->refreshToken = $body['refresh_token'];
@@ -438,5 +450,23 @@ class Connection
         }
 
         return new $className($this);
+    }
+
+    /**
+     * @throws Exceptions\JsonException
+     */
+    private function refreshTokenIsRevoked(Response $response): bool
+    {
+        if ($response->getStatusCode() !== 400) {
+            return false;
+        }
+
+        $body = $response->getDecodedBody();
+
+        if (! isset($body['error'], $body['hint'])) {
+            return false;
+        }
+
+        return $body['error'] === 'invalid_grant' && $body['hint'] === 'Token has been revoked';
     }
 }

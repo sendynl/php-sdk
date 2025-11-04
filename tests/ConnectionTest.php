@@ -5,6 +5,8 @@ namespace Sendy\Api\Tests;
 use PHPUnit\Framework\TestCase;
 use Sendy\Api\ApiException;
 use Sendy\Api\Connection;
+use Sendy\Api\Exceptions\ClientException;
+use Sendy\Api\Exceptions\SendyException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 use Sendy\Api\Http\Transport\MockTransport;
@@ -210,6 +212,60 @@ class ConnectionTest extends TestCase
             'https://app.sendy.nl/oauth/token',
             $transport->getLastRequest()->getUrl(),
         );
+    }
+
+    public function testRevokedRefreshTokenIsHandled(): void
+    {
+        $connection = new Connection();
+
+        $transport = new MockTransport(
+            new Response(400, [], json_encode([
+                'error' => 'invalid_grant',
+                'hint' => 'Token has been revoked',
+            ])),
+        );
+
+        $connection->setTransport($transport);
+
+        $connection->setOauthClient(true);
+        $connection->setClientId('clientId');
+        $connection->setAccessToken('accessToken');
+        $connection->setClientSecret('clientSecret');
+        $connection->setRefreshToken('RefreshToken');
+        $connection->setTokenExpires(time() + 5);
+
+        try {
+            $connection->checkOrAcquireAccessToken();
+        } catch (SendyException $exception) {
+            $this->fail($exception->getMessage());
+        }
+
+        $this->assertTrue(true);
+    }
+
+    public function testUnexpectedExceptionWhenRefreshingTokensAreHandled(): void
+    {
+        $connection = new Connection();
+
+        $transport = new MockTransport(
+            new Response(400, [], json_encode([
+                'error' => 'unknown_error',
+                'hint' => 'Unknown error',
+            ])),
+        );
+
+        $connection->setTransport($transport);
+
+        $connection->setOauthClient(true);
+        $connection->setClientId('clientId');
+        $connection->setAccessToken('accessToken');
+        $connection->setClientSecret('clientSecret');
+        $connection->setRefreshToken('RefreshToken');
+        $connection->setTokenExpires(time() + 5);
+
+        $this->expectException(ClientException::class);
+
+        $connection->checkOrAcquireAccessToken();
     }
 
     public function testTokenUpdateCallbackIsCalled(): void
