@@ -99,6 +99,62 @@ $connection->setClientId('your-client-id')
     });
 ```
 
+### Transports
+
+The Sendy PHP SDK uses a concept called "transports" to send the HTTP requests to the Sendy API. By default, the [`TransportFactory`](https://github.com/sendynl/php-sdk/blob/main/src/Http/Transport/TransportFactory.php) will pick a suitable Transport for the environment if you do not supply one.
+
+If, for example, your application already has a specific HTTP client library available, you may want to provide your own transport implementation. To create your own transport, create a class that implements `Sendy\Api\Http\Transport\TransportInterface`.
+
+<details>
+
+<summary>An example for the Laravel framework could look like this (click to expand)</summary>
+
+```php
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
+use Sendy\Api\Exceptions\TransportException;
+use Sendy\Api\Http\Request;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\TransportInterface
+
+class LaravelTransport implements TransportInterface
+{
+    public function send(Request $request): Response
+    {
+        $headers = $request->getHeaders();
+        $contentType = Arr::pull($headers, 'Content-Type', 'application/json');
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->withBody($request->getBody(), $contentType)
+                ->withMethod($request->getMethod())
+                ->withUrl($request->getUrl())
+                ->send();
+        } catch (\Throwable $e) {
+            throw new TransportException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        return new Response($response->status(), $response->headers(), $response->body());
+    }
+
+    public function getUserAgent() : string
+    {
+        return 'LaravelHttpClient/' . Application::VERSION;
+    }
+}
+```
+
+</details>
+
+To use your transport, set it on the connection:
+
+```php
+$connection = new \Sendy\Api\Connection();
+
+$connection->setTransport(new LaravelTransport());
+```
+
 ### Endpoints
 
 The endpoints in the API documentation are mapped to the resource as defined in the Resources directory. Please consult

@@ -2,11 +2,10 @@
 
 namespace Sendy\Api\Tests\Resources;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use Sendy\Api\Resources\Carrier;
-use Sendy\Api\Resources\Label;
 use PHPUnit\Framework\TestCase;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\MockTransport;
+use Sendy\Api\Resources\Label;
 use Sendy\Api\Tests\TestsEndpoints;
 
 class LabelTest extends TestCase
@@ -15,37 +14,37 @@ class LabelTest extends TestCase
 
     public function testGet(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Label($this->buildConnectionWithMockHandler($handler));
+        $resource = new Label($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->get(['123456']));
 
         $this->assertEquals(
-            '/api/labels?ids%5B0%5D=123456',
-            (string) $handler->getLastRequest()->getUri()
+            'https://app.sendy.nl/api/labels?ids%5B0%5D=123456',
+            $transport->getLastRequest()->getUrl(),
         );
 
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 
     public function testParametersAreSetInURL(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Label($this->buildConnectionWithMockHandler($handler));
+        $resource = new Label($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->get(['123456', 'A4', 'top-left']));
 
         $this->assertEquals(
-            '/api/labels?ids%5B0%5D=123456&ids%5B1%5D=A4&ids%5B2%5D=top-left',
-            (string) $handler->getLastRequest()->getUri()
+            'https://app.sendy.nl/api/labels?ids%5B0%5D=123456&ids%5B1%5D=A4&ids%5B2%5D=top-left',
+            $transport->getLastRequest()->getUrl(),
         );
 
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 }

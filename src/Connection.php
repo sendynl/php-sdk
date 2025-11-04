@@ -2,15 +2,13 @@
 
 namespace Sendy\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\BadResponseException;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Sendy\Api\Exceptions\ClientException;
+use Sendy\Api\Exceptions\SendyException;
+use Sendy\Api\Http\Request;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\TransportFactory;
+use Sendy\Api\Http\Transport\TransportInterface;
 use Sendy\Api\Resources\Resource;
 
 /**
@@ -26,7 +24,9 @@ use Sendy\Api\Resources\Resource;
  */
 class Connection
 {
-    private const BASE_URL = 'https://app.sendy.nl';
+    public const VERSION = '3.0.0';
+
+    public const BASE_URL = 'https://app.sendy.nl';
 
     private const API_URL = '/api';
 
@@ -34,10 +34,7 @@ class Connection
 
     private const TOKEN_URL = '/oauth/token';
 
-    private const VERSION = '1.0.2';
-
-    /** @var Client|null */
-    private ?Client $client = null;
+    private ?TransportInterface $transport = null;
 
     /** @var string The Client ID as UUID */
     private string $clientId;
@@ -66,10 +63,9 @@ class Connection
     /** @var mixed */
     private $state = null;
 
-    /** @var callable(Client) */
+    /** @var callable($this) */
     private $tokenUpdateCallback;
 
-    /** @var bool */
     private bool $oauthClient = false;
 
     public ?Meta $meta;
@@ -77,46 +73,22 @@ class Connection
     public ?RateLimits $rateLimits;
 
     /**
-     * @return Client
+     * @var array<string, list<string>>
      */
-    public function getClient(): Client
+    public array $sendyHeaders = [];
+
+    public function getTransport(): TransportInterface
     {
-        if ($this->client instanceof Client) {
-            return $this->client;
-        }
-
-        $userAgent = sprintf("Sendy/%s PHP/%s", self::VERSION, phpversion());
-
-        if ($this->isOauthClient()) {
-            $userAgent .= ' OAuth/2.0';
-        }
-
-        $userAgent .= " {$this->userAgentAppendix}";
-
-        $this->client = new Client([
-            'http_errors' => true,
-            'expect' => false,
-            'base_uri' => self::BASE_URL,
-            'headers' => [
-                'User-Agent' => trim($userAgent),
-            ]
-        ]);
-
-        return $this->client;
+        return $this->transport ??= TransportFactory::create();
     }
 
-    /**
-     * @param Client $client
-     */
-    public function setClient(Client $client): void
+    public function setTransport(TransportInterface $transport): Connection
     {
-        $this->client = $client;
+        $this->transport = $transport;
+
+        return $this;
     }
 
-    /**
-     * @param string $userAgentAppendix
-     * @return Connection
-     */
     public function setUserAgentAppendix(string $userAgentAppendix): Connection
     {
         $this->userAgentAppendix = $userAgentAppendix;
@@ -124,10 +96,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $clientId
-     * @return Connection
-     */
     public function setClientId(string $clientId): Connection
     {
         $this->clientId = $clientId;
@@ -135,10 +103,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $clientSecret
-     * @return Connection
-     */
     public function setClientSecret(string $clientSecret): Connection
     {
         $this->clientSecret = $clientSecret;
@@ -146,10 +110,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $authorizationCode
-     * @return Connection
-     */
     public function setAuthorizationCode(string $authorizationCode): Connection
     {
         $this->authorizationCode = $authorizationCode;
@@ -157,18 +117,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getAccessToken(): string
     {
         return $this->accessToken;
     }
 
-    /**
-     * @param string $accessToken
-     * @return Connection
-     */
     public function setAccessToken(string $accessToken): Connection
     {
         $this->accessToken = $accessToken;
@@ -176,18 +129,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getTokenExpires(): int
     {
         return $this->tokenExpires;
     }
 
-    /**
-     * @param int $tokenExpires
-     * @return Connection
-     */
     public function setTokenExpires(int $tokenExpires): Connection
     {
         $this->tokenExpires = $tokenExpires;
@@ -195,18 +141,11 @@ class Connection
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getRefreshToken(): string
     {
         return $this->refreshToken;
     }
 
-    /**
-     * @param string $refreshToken
-     * @return Connection
-     */
     public function setRefreshToken(string $refreshToken): Connection
     {
         $this->refreshToken = $refreshToken;
@@ -214,10 +153,6 @@ class Connection
         return $this;
     }
 
-    /**
-     * @param string $redirectUrl
-     * @return Connection
-     */
     public function setRedirectUrl(string $redirectUrl): Connection
     {
         $this->redirectUrl = $redirectUrl;
@@ -227,19 +162,14 @@ class Connection
 
     /**
      * @param mixed|null $state
-     * @return Connection
      */
-    public function setState($state)
+    public function setState($state): Connection
     {
         $this->state = $state;
 
         return $this;
     }
 
-    /**
-     * @param callable $tokenUpdateCallback
-     * @return Connection
-     */
     public function setTokenUpdateCallback(callable $tokenUpdateCallback): Connection
     {
         $this->tokenUpdateCallback = $tokenUpdateCallback;
@@ -249,31 +179,22 @@ class Connection
 
     /**
      * Build the URL to authorize the application
-     *
-     * @return string
      */
     public function getAuthorizationUrl(): string
     {
         return self::BASE_URL . self::AUTH_URL . '?' . http_build_query([
-                'client_id' => $this->clientId,
-                'redirect_uri' => $this->redirectUrl,
-                'response_type' => 'code',
-                'state' => $this->state,
-            ]);
+            'client_id' => $this->clientId,
+            'redirect_uri' => $this->redirectUrl,
+            'response_type' => 'code',
+            'state' => $this->state,
+        ]);
     }
 
-    /**
-     * @return bool
-     */
     public function isOauthClient(): bool
     {
         return $this->oauthClient;
     }
 
-    /**
-     * @param bool $oauthClient
-     * @return Connection
-     */
     public function setOauthClient(bool $oauthClient): Connection
     {
         $this->oauthClient = $oauthClient;
@@ -281,6 +202,9 @@ class Connection
         return $this;
     }
 
+    /**
+     * @throws SendyException
+     */
     public function checkOrAcquireAccessToken(): void
     {
         if (empty($this->accessToken) || ($this->tokenHasExpired() && $this->isOauthClient())) {
@@ -299,73 +223,77 @@ class Connection
         return $this->tokenExpires - 10 < time();
     }
 
+    /**
+     * @throws SendyException
+     */
     private function acquireAccessToken(): void
     {
+        if (empty($this->refreshToken)) {
+            $parameters = [
+                'redirect_uri' => $this->redirectUrl,
+                'grant_type' => 'authorization_code',
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'code' => $this->authorizationCode,
+            ];
+        } else {
+            $parameters = [
+                'refresh_token' => $this->refreshToken,
+                'grant_type' => 'refresh_token',
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ];
+        }
+
         try {
-            if (empty($this->refreshToken)) {
-                $parameters = [
-                    'redirect_uri'  => $this->redirectUrl,
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'code'          => $this->authorizationCode,
-                ];
-            } else {
-                $parameters = [
-                    'refresh_token' => $this->refreshToken,
-                    'grant_type'    => 'refresh_token',
-                    'client_id'     => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                ];
+            $body = $this->performRequest(
+                $this->createRequest('POST', self::BASE_URL . self::TOKEN_URL, json_encode($parameters)),
+                false,
+            );
+        } catch (ClientException $exception) {
+            // When the refresh token was refreshed in another process, it could occur that the connection still holds
+            // a valid refresh token with a revoked refresh token. When this occurs it is safe to use the valid access
+            // token.
+            if ($this->refreshTokenIsRevoked($exception->getResponse()) && $this->tokenExpires > time()) {
+                return;
             }
 
-            $response = $this->getClient()->post(self::BASE_URL . self::TOKEN_URL, ['form_params' => $parameters]);
+            throw $exception;
+        }
 
-            Message::rewindBody($response);
+        $this->accessToken = $body['access_token'];
+        $this->refreshToken = $body['refresh_token'];
+        $this->tokenExpires = time() + $body['expires_in'];
 
-            $responseBody = $response->getBody()->getContents();
-
-            $body = json_decode($responseBody, true);
-
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $this->accessToken = $body['access_token'];
-                $this->refreshToken = $body['refresh_token'];
-                $this->tokenExpires = time() + $body['expires_in'];
-
-                if (is_callable($this->tokenUpdateCallback)) {
-                    call_user_func($this->tokenUpdateCallback, $this);
-                }
-            } else {
-                throw new ApiException('Could not acquire tokens, json decode failed. Got response: ' . $responseBody);
-            }
-        } catch (BadResponseException $e) {
-            throw new ApiException('Something went wrong. Got: ' . $e->getMessage(), 0, $e);
+        if (is_callable($this->tokenUpdateCallback)) {
+            call_user_func($this->tokenUpdateCallback, $this);
         }
     }
 
     /**
-     * @param string $method
-     * @param string $endpoint
-     * @param null|StreamInterface|resource|string $body
-     * @param array<string, string|string[]>|null $params
-     * @param array<string, string|string[]>|null $headers
-     * @return Request
+     * @param array<string, string|string[]> $params
+     * @param array<string, string> $headers
      */
-    private function createRequest(
+    public function createRequest(
         string $method,
         string $endpoint,
-        $body = null,
-        ?array $params = null,
-        ?array $headers = null
+        ?string $body = null,
+        array $params = [],
+        array $headers = []
     ): Request {
+        $userAgent = sprintf("SendySDK/%s PHP/%s", self::VERSION, phpversion());
+
+        if ($this->isOauthClient()) {
+            $userAgent .= ' OAuth/2.0';
+        }
+
+        $userAgent .= " {$this->getTransport()->getUserAgent()} {$this->userAgentAppendix}";
+
         $headers = array_merge($headers, [
-            'Accept'       => 'application/json',
+            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
+            'User-Agent' => trim($userAgent),
         ]);
-
-        $this->checkOrAcquireAccessToken();
-
-        $headers['Authorization'] = "Bearer {$this->accessToken}";
 
         if (! empty($params)) {
             $endpoint .= strpos($endpoint, '?') === false ? '?' : '&';
@@ -380,8 +308,7 @@ class Connection
      * @param array<string, mixed> $params
      * @param array<string, mixed> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      */
     public function get($url, array $params = [], array $headers = []): array
     {
@@ -398,14 +325,13 @@ class Connection
      * @param array<string, mixed|mixed[]> $params
      * @param array<string, mixed|mixed[]> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      */
     public function post($url, ?array $body = null, array $params = [], array $headers = []): array
     {
         $url = self::API_URL . $url;
 
-        if (!is_null($body)) {
+        if (! is_null($body)) {
             $body = json_encode($body);
         }
 
@@ -420,8 +346,7 @@ class Connection
      * @param array<string, mixed|array<string, mixed>> $params
      * @param array<string, mixed|array<string, mixed>> $headers
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
-     * @throws GuzzleException
+     * @throws SendyException
      */
     public function put($url, array $body = [], array $params = [], array $headers = []): array
     {
@@ -436,7 +361,7 @@ class Connection
     /**
      * @param UriInterface|string $url
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException|\GuzzleHttp\Exception\GuzzleException
+     * @throws SendyException
      */
     public function delete($url): array
     {
@@ -448,44 +373,40 @@ class Connection
     }
 
     /**
-     * @param Request $request
-     * @return mixed[]|\mixed[][]|\string[][]
-     * @throws ApiException
-     * @throws GuzzleException
+     * @return array<string, mixed|array<string|mixed>>
+     * @throws SendyException
      */
-    private function performRequest(Request $request): array
+    private function performRequest(Request $request, bool $checkAccessToken = true): array
     {
-        try {
-            $response = $this->getClient()->send($request);
+        if ($checkAccessToken) {
+            $this->checkOrAcquireAccessToken();
 
-            return $this->parseResponse($response);
-        } catch (\Exception $e) {
-            $this->parseException($e);
+            $request->setHeader('Authorization', "Bearer {$this->accessToken}");
         }
+
+        $response = $this->getTransport()->send($request);
+
+        return $this->parseResponse($response, $request);
     }
 
     /**
-     * @param ResponseInterface $response
      * @return array<string, mixed|array<string|mixed>>
-     * @throws ApiException
+     * @throws SendyException
      */
-    public function parseResponse(ResponseInterface $response): array
+    public function parseResponse(Response $response, Request $request): array
     {
         $this->extractRateLimits($response);
+        $this->extractSendyHeaders($response);
+
+        if ($exception = $response->toException($request)) {
+            throw $exception;
+        }
 
         if ($response->getStatusCode() === 204) {
             return [];
         }
 
-        Message::rewindBody($response);
-
-        $responseBody = $response->getBody()->getContents();
-
-        $json = json_decode($responseBody, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ApiException("Json decode failed. Got: " . $responseBody);
-        }
+        $json = $response->getDecodedBody();
 
         if (array_key_exists('data', $json)) {
             if (array_key_exists('meta', $json)) {
@@ -500,52 +421,25 @@ class Connection
         return $json;
     }
 
-    /**
-     * @param \Exception $e
-     * @return void
-     * @throws ApiException
-     */
-    public function parseException(\Exception $e): void
-    {
-        if (! $e instanceof BadResponseException) {
-            throw new ApiException($e->getMessage(), 0, $e);
-        }
-
-        $this->extractRateLimits($e->getResponse());
-
-        if ($e instanceof ServerException) {
-            throw new ApiException($e->getMessage(), $e->getResponse()->getStatusCode());
-        }
-
-        $response = $e->getResponse();
-
-        Message::rewindBody($response);
-
-        $responseBody = $response->getBody()->getContents();
-
-        $json = json_decode($responseBody, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new ApiException("Json decode failed. Got: " . $responseBody);
-        }
-
-        if (array_key_exists('errors', $json)) {
-            throw new ApiException($json['message'], 0, $e, $json['errors']);
-        }
-
-        throw new ApiException($json['message']);
-    }
-
-    private function extractRateLimits(ResponseInterface $response): void
+    private function extractRateLimits(Response $response): void
     {
         $this->rateLimits = RateLimits::buildFromResponse($response);
     }
 
     /**
+     * Extract the x-sendy-* headers from the response.
+     */
+    private function extractSendyHeaders(Response $response): void
+    {
+        $this->sendyHeaders = array_filter(
+            $response->getHeaders(),
+            fn(string $key) => substr($key, 0, 8) === 'x-sendy-',
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    /**
      * Magic method to fetch the resource object
-     *
-     * @param string $resource
-     * @return Resource
      */
     public function __get(string $resource): Resource
     {
@@ -556,5 +450,23 @@ class Connection
         }
 
         return new $className($this);
+    }
+
+    /**
+     * @throws Exceptions\JsonException
+     */
+    private function refreshTokenIsRevoked(Response $response): bool
+    {
+        if ($response->getStatusCode() !== 400) {
+            return false;
+        }
+
+        $body = $response->getDecodedBody();
+
+        if (! isset($body['error'], $body['hint'])) {
+            return false;
+        }
+
+        return $body['error'] === 'invalid_grant' && $body['hint'] === 'Token has been revoked';
     }
 }

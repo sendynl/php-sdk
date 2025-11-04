@@ -2,7 +2,7 @@
 
 namespace Sendy\Api;
 
-use Psr\Http\Message\ResponseInterface;
+use Sendy\Api\Http\Response;
 
 final class RateLimits
 {
@@ -14,12 +14,6 @@ final class RateLimits
 
     public int $reset;
 
-    /**
-     * @param int $retryAfter
-     * @param int $limit
-     * @param int $remaining
-     * @param int $reset
-     */
     public function __construct(int $retryAfter, int $limit, int $remaining, int $reset)
     {
         $this->retryAfter = $retryAfter;
@@ -28,13 +22,15 @@ final class RateLimits
         $this->reset = $reset;
     }
 
-    public static function buildFromResponse(ResponseInterface $response): RateLimits
+    public static function buildFromResponse(Response $response): RateLimits
     {
+        $headers = $response->getHeaders();
+
         return new self(
-            (int) implode("", $response->getHeader('Retry-After')),
-            (int) implode("", $response->getHeader('X-RateLimit-Limit')),
-            (int) implode("", $response->getHeader('X-RateLimit-Remaining')),
-            (int) implode("", $response->getHeader('X-RateLimit-Reset'))
+            (int) ($headers['retry-after'][0] ?? 0),
+            (int) ($headers['x-ratelimit-limit'][0] ?? 0),
+            (int) ($headers['x-ratelimit-remaining'][0] ?? 0),
+            (int) ($headers['x-ratelimit-reset'][0] ?? 0),
         );
     }
 }

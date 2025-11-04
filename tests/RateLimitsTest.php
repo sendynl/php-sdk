@@ -2,7 +2,7 @@
 
 namespace Sendy\Api\Tests;
 
-use GuzzleHttp\Psr7\Response;
+use Sendy\Api\Http\Response;
 use Sendy\Api\RateLimits;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,8 @@ class RateLimitsTest extends TestCase
                 'X-RateLimit-Limit' => '180',
                 'X-RateLimit-Remaining' => '179',
                 'X-RateLimit-Reset' => '1681381136',
-            ]
+            ],
+            '',
         );
 
         $this->assertInstanceOf(RateLimits::class, RateLimits::buildFromResponse($response));

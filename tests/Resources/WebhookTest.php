@@ -2,10 +2,10 @@
 
 namespace Sendy\Api\Tests\Resources;
 
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
-use Sendy\Api\Resources\Webhook;
 use PHPUnit\Framework\TestCase;
+use Sendy\Api\Http\Response;
+use Sendy\Api\Http\Transport\MockTransport;
+use Sendy\Api\Resources\Webhook;
 use Sendy\Api\Tests\TestsEndpoints;
 
 class WebhookTest extends TestCase
@@ -14,47 +14,47 @@ class WebhookTest extends TestCase
 
     public function testList(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(200, [], json_encode([])),
-        ]);
+        );
 
-        $resource = new Webhook($this->buildConnectionWithMockHandler($handler));
+        $resource = new Webhook($this->buildConnectionWithMockTransport($transport));
 
         $this->assertEquals([], $resource->list());
 
-        $this->assertEquals('/api/webhooks', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/webhooks', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('GET', $transport->getLastRequest()->getMethod());
     }
 
     public function testDelete(): void
     {
-        $handler = new MockHandler([
-            new Response(204),
-        ]);
+        $transport = new MockTransport(
+            new Response(204, [], ''),
+        );
 
-        $resource = new Webhook($this->buildConnectionWithMockHandler($handler));
+        $resource = new Webhook($this->buildConnectionWithMockTransport($transport));
 
-        $resource->delete('webhook-id');
+        $this->assertEquals([], $resource->delete('webhook-id'));
 
-        $this->assertEquals('/api/webhooks/webhook-id', $handler->getLastRequest()->getUri());
-        $this->assertEquals('DELETE', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/webhooks/webhook-id', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('DELETE', $transport->getLastRequest()->getMethod());
     }
 
     public function testCreate(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(201, [], json_encode([
                 'data' => [
                     'id' => 'webhook-id',
                     'url' => 'https://example.com/webhook',
                     'events' => [
                         'shipment.generated',
-                    ]
-                ]
+                    ],
+                ],
             ])),
-        ]);
+        );
 
-        $resource = new Webhook($this->buildConnectionWithMockHandler($handler));
+        $resource = new Webhook($this->buildConnectionWithMockTransport($transport));
 
         $resource->create([
             'url' => 'https://example.com/webhook',
@@ -63,29 +63,29 @@ class WebhookTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals('/api/webhooks', (string)$handler->getLastRequest()->getUri());
-        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/webhooks', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('POST', $transport->getLastRequest()->getMethod());
         $this->assertEquals(
             '{"url":"https:\/\/example.com\/webhook","events":["shipments.generated"]}',
-            $handler->getLastRequest()->getBody()->getContents()
+            $transport->getLastRequest()->getBody(),
         );
     }
 
     public function testUpdate(): void
     {
-        $handler = new MockHandler([
+        $transport = new MockTransport(
             new Response(201, [], json_encode([
                 'data' => [
                     'id' => 'webhook-id',
                     'url' => 'https://example.com/updated-webhook',
                     'events' => [
                         'shipment.generated',
-                    ]
-                ]
+                    ],
+                ],
             ])),
-        ]);
+        );
 
-        $resource = new Webhook($this->buildConnectionWithMockHandler($handler));
+        $resource = new Webhook($this->buildConnectionWithMockTransport($transport));
 
         $resource->update('webhook-id', [
             'url' => 'https://example.com/updated-webhook',
@@ -94,11 +94,11 @@ class WebhookTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals('/api/webhooks/webhook-id', $handler->getLastRequest()->getUri());
-        $this->assertEquals('PUT', $handler->getLastRequest()->getMethod());
+        $this->assertEquals('https://app.sendy.nl/api/webhooks/webhook-id', $transport->getLastRequest()->getUrl());
+        $this->assertEquals('PUT', $transport->getLastRequest()->getMethod());
         $this->assertEquals(
             '{"url":"https:\/\/example.com\/updated-webhook","events":["shipment.generated"]}',
-            $handler->getLastRequest()->getBody()->getContents()
+            $transport->getLastRequest()->getBody(),
         );
     }
 }
