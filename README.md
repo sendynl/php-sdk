@@ -101,11 +101,13 @@ $connection->setClientId('your-client-id')
 
 ### Transports
 
-By default, the SDK will create a `Transport` with the `TransportFactory` if you do not supply one.
+The Sendy PHP SDK uses a concept called "transports" to send the HTTP requests to the Sendy API. By default, the [`TransportFactory`](https://github.com/sendynl/php-sdk/blob/main/src/Http/Transport/TransportFactory.php) will pick a suitable Transport for the environment if you do not supply one.
 
-To create your own `Transport` you have to create a class which implements `Sendy\Api\Http\Tranport\TransportInterface`.
+If, for example, your application already has a specific HTTP client library available, you may want to provide your own transport implementation. To create your own transport, create a class that implements `Sendy\Api\Http\Transport\TransportInterface`.
 
-An example for the Laravel framework could look like this
+<details>
+
+<summary>An example for the Laravel framework could look like this (click to expand)</summary>
 
 ```php
 use Illuminate\Foundation\Application;
@@ -135,13 +137,22 @@ class LaravelTransport implements TransportInterface
 
         return new Response($response->status(), $response->headers(), $response->body());
     }
-    
+
     public function getUserAgent() : string
     {
         return 'LaravelHttpClient/' . Application::VERSION;
     }
 }
+```
 
+</details>
+
+To use your transport, set it on the connection:
+
+```php
+$connection = new \Sendy\Api\Connection();
+
+$connection->setTransport(new LaravelTransport());
 ```
 
 ### Endpoints
