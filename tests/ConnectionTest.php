@@ -22,21 +22,21 @@ class ConnectionTest extends TestCase
 
         $connection = $this->createConnection();
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion}",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setUserAgentAppendix('WooCommerce/6.2');
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion} WooCommerce/6.2",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} curl/{$curlVersion} WooCommerce/6.2",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setOauthClient(true);
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} OAuth/2.0 curl/{$curlVersion}",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} OAuth/2.0 curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
     }
