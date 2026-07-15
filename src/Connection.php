@@ -24,7 +24,7 @@ use Sendy\Api\Resources\Resource;
  */
 class Connection
 {
-    public const VERSION = '3.0.0';
+    public const VERSION = '3.0.1';
 
     public const BASE_URL = 'https://app.sendy.nl';
 
