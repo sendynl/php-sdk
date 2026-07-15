@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Sendy\Api\ApiException;
 use Sendy\Api\Connection;
 use Sendy\Api\Exceptions\ClientException;
-use Sendy\Api\Exceptions\SendyException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 use Sendy\Api\Http\Transport\MockTransport;
@@ -16,6 +15,11 @@ use Sendy\Api\Resources\Me;
 
 class ConnectionTest extends TestCase
 {
+    public function testVersionUsesSemverFormat(): void
+    {
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+(-[a-z]+\.\d+)?$/', Connection::VERSION);
+    }
+
     public function testUserAgentIsSet(): void
     {
         $phpVersion = phpversion();
@@ -23,21 +27,21 @@ class ConnectionTest extends TestCase
 
         $connection = $this->createConnection();
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion}",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setUserAgentAppendix('WooCommerce/6.2');
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} curl/{$curlVersion} WooCommerce/6.2",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} curl/{$curlVersion} WooCommerce/6.2",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
 
         $connection = $this->createConnection();
         $connection->setOauthClient(true);
         $this->assertEquals(
-            "SendySDK/3.0.0 PHP/{$phpVersion} OAuth/2.0 curl/{$curlVersion}",
+            "SendySDK/" . Connection::VERSION . " PHP/{$phpVersion} OAuth/2.0 curl/{$curlVersion}",
             $connection->createRequest('GET', '/')->getHeaders()['user-agent'],
         );
     }
@@ -131,6 +135,25 @@ class ConnectionTest extends TestCase
 
         $this->assertEquals([], $connection->parseResponse($response, new Request('GET', '/foo')));
         $this->assertInstanceOf(Meta::class, $connection->meta);
+    }
+
+    public function testParseResponseExposesOnlySendyHeadersWithSanitizedValues(): void
+    {
+        $connection = new Connection();
+
+        $response = new Response(200, [
+            'content-type' => ['application/json'],
+            'X-Sendy-Token' => ["secret\r\nx-injected: value"],
+            'x-sendy-shipment-id' => ['123'],
+            'x-ratelimit-remaining' => ['59'],
+        ], json_encode(['data' => []]));
+
+        $connection->parseResponse($response, new Request('GET', '/foo'));
+
+        $this->assertEquals([
+            'x-sendy-token' => ['secretx-injected: value'],
+            'x-sendy-shipment-id' => ['123'],
+        ], $connection->sendyHeaders);
     }
 
     public function testParseResponseUnwrapsData(): void
@@ -234,13 +257,10 @@ class ConnectionTest extends TestCase
         $connection->setRefreshToken('RefreshToken');
         $connection->setTokenExpires(time() + 5);
 
-        try {
-            $connection->checkOrAcquireAccessToken();
-        } catch (SendyException $exception) {
-            $this->fail($exception->getMessage());
-        }
+        $connection->checkOrAcquireAccessToken();
 
-        $this->assertTrue(true);
+        $this->assertSame('accessToken', $connection->getAccessToken());
+        $this->assertSame('RefreshToken', $connection->getRefreshToken());
     }
 
     public function testUnexpectedExceptionWhenRefreshingTokensAreHandled(): void

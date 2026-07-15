@@ -24,7 +24,7 @@ use Sendy\Api\Resources\Resource;
  */
 class Connection
 {
-    public const VERSION = '3.0.0';
+    public const VERSION = '3.0.1';
 
     public const BASE_URL = 'https://app.sendy.nl';
 
@@ -63,8 +63,8 @@ class Connection
     /** @var mixed */
     private $state = null;
 
-    /** @var callable($this) */
-    private $tokenUpdateCallback;
+    /** @var (callable(self): void)|null */
+    private $tokenUpdateCallback = null;
 
     private bool $oauthClient = false;
 

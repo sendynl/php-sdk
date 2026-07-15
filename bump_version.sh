@@ -17,7 +17,7 @@ new_version=${1#v}
 
 echo "New version: $new_version"
 
-if ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9](-[a-z]+\.[0-9]+)?$ ]]
+if ! [[ "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]]
 then
   echo "Invalid version format. Please use semantic versioning (https://semver.org/)."
   exit 1
