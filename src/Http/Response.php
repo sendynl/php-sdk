@@ -88,11 +88,24 @@ final class Response
     public function __construct(int $statusCode, array $headers, string $body)
     {
         $this->statusCode = $statusCode;
-        $this->headers = array_map(
-            fn($value) => is_array($value) ? $value : [$value],
+        $this->headers = $this->normalizeHeaders($headers);
+        $this->body = $body;
+    }
+
+    /**
+     * Lowercase the header names and strip CR and LF from the values, so
+     * consumers can safely emit headers in their own HTTP responses without
+     * risking header injection.
+     *
+     * @param array<string, list<string>|string> $headers
+     * @return array<string, list<string>>
+     */
+    private function normalizeHeaders(array $headers): array
+    {
+        return array_map(
+            fn($value) => str_replace(["\r", "\n"], '', is_array($value) ? $value : [$value]),
             array_change_key_case($headers, CASE_LOWER),
         );
-        $this->body = $body;
     }
 
     public function getStatusCode(): int
