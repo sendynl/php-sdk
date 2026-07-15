@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Cache composer directory
         id: cache-composer
@@ -49,7 +49,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions}}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Cache composer directory
         id: cache-composer
