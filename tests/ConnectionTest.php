@@ -15,6 +15,11 @@ use Sendy\Api\Resources\Me;
 
 class ConnectionTest extends TestCase
 {
+    public function testVersionUsesSemverFormat(): void
+    {
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+(-[a-z]+\.\d+)?$/', Connection::VERSION);
+    }
+
     public function testUserAgentIsSet(): void
     {
         $phpVersion = phpversion();
