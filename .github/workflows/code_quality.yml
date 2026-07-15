@@ -18,7 +18,7 @@ jobs:
 
     - name: Cache composer directory
       id: cache-composer
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       env:
         cache-name: cache-vendor-directory
       with:
@@ -45,7 +45,7 @@ jobs:
 
       - name: Cache composer directory
         id: cache-composer
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         env:
           cache-name: cache-vendor-directory
         with:
@@ -73,7 +73,7 @@ jobs:
 
       - name: Cache composer directory
         id: cache-composer
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         env:
           cache-name: cache-vendor-directory
         with:
