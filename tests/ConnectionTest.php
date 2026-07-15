@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Sendy\Api\ApiException;
 use Sendy\Api\Connection;
 use Sendy\Api\Exceptions\ClientException;
-use Sendy\Api\Exceptions\SendyException;
 use Sendy\Api\Http\Request;
 use Sendy\Api\Http\Response;
 use Sendy\Api\Http\Transport\MockTransport;
@@ -253,13 +252,10 @@ class ConnectionTest extends TestCase
         $connection->setRefreshToken('RefreshToken');
         $connection->setTokenExpires(time() + 5);
 
-        try {
-            $connection->checkOrAcquireAccessToken();
-        } catch (SendyException $exception) {
-            $this->fail($exception->getMessage());
-        }
+        $connection->checkOrAcquireAccessToken();
 
-        $this->assertTrue(true);
+        $this->assertSame('accessToken', $connection->getAccessToken());
+        $this->assertSame('RefreshToken', $connection->getRefreshToken());
     }
 
     public function testUnexpectedExceptionWhenRefreshingTokensAreHandled(): void

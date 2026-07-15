@@ -7,7 +7,7 @@ use Sendy\Api\Http\Response;
 
 class MockTransport implements TransportInterface
 {
-    private ?Response $response;
+    private Response $response;
 
     /**
      * @var list<Request>

@@ -63,8 +63,8 @@ class Connection
     /** @var mixed */
     private $state = null;
 
-    /** @var callable($this) */
-    private $tokenUpdateCallback;
+    /** @var (callable(self): void)|null */
+    private $tokenUpdateCallback = null;
 
     private bool $oauthClient = false;
 
