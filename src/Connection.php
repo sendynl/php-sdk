@@ -428,13 +428,25 @@ class Connection
 
     /**
      * Extract the x-sendy-* headers from the response.
+     *
+     * CR and LF are stripped from the values so consumers can safely emit
+     * these headers in their own HTTP responses without risking header
+     * injection.
      */
     private function extractSendyHeaders(Response $response): void
     {
-        $this->sendyHeaders = array_filter(
+        $headers = array_filter(
             $response->getHeaders(),
             fn(string $key) => substr($key, 0, 8) === 'x-sendy-',
             ARRAY_FILTER_USE_KEY,
+        );
+
+        $this->sendyHeaders = array_map(
+            fn(array $values) => array_map(
+                fn(string $value) => str_replace(["\r", "\n"], '', $value),
+                $values,
+            ),
+            $headers,
         );
     }
 

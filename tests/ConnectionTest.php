@@ -133,6 +133,25 @@ class ConnectionTest extends TestCase
         $this->assertInstanceOf(Meta::class, $connection->meta);
     }
 
+    public function testParseResponseExposesOnlySendyHeadersWithSanitizedValues(): void
+    {
+        $connection = new Connection();
+
+        $response = new Response(200, [
+            'content-type' => ['application/json'],
+            'X-Sendy-Token' => ["secret\r\nx-injected: value"],
+            'x-sendy-shipment-id' => ['123'],
+            'x-ratelimit-remaining' => ['59'],
+        ], json_encode(['data' => []]));
+
+        $connection->parseResponse($response, new Request('GET', '/foo'));
+
+        $this->assertEquals([
+            'x-sendy-token' => ['secretx-injected: value'],
+            'x-sendy-shipment-id' => ['123'],
+        ], $connection->sendyHeaders);
+    }
+
     public function testParseResponseUnwrapsData(): void
     {
         $connection = new Connection();
