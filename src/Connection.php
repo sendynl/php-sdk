@@ -24,7 +24,7 @@ use Sendy\Api\Resources\Resource;
  */
 class Connection
 {
-    public const VERSION = '3.0.1';
+    public const VERSION = '3.1.0';
 
     public const BASE_URL = 'https://app.sendy.nl';
 
@@ -60,6 +60,9 @@ class Connection
     /** @var string The appendix for the user agent */
     private string $userAgentAppendix = '';
 
+    /** @var string|null The URL of the application or website using this SDK, sent as the Referer header */
+    private ?string $referer = null;
+
     /** @var mixed */
     private $state = null;
 
@@ -92,6 +95,13 @@ class Connection
     public function setUserAgentAppendix(string $userAgentAppendix): Connection
     {
         $this->userAgentAppendix = $userAgentAppendix;
+
+        return $this;
+    }
+
+    public function setReferer(?string $referer): Connection
+    {
+        $this->referer = $referer;
 
         return $this;
     }
@@ -294,6 +304,10 @@ class Connection
             'Content-Type' => 'application/json',
             'User-Agent' => trim($userAgent),
         ]);
+
+        if ($this->referer !== null) {
+            $headers['Referer'] = $this->referer;
+        }
 
         if (! empty($params)) {
             $endpoint .= strpos($endpoint, '?') === false ? '?' : '&';
