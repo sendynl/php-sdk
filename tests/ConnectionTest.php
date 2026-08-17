@@ -46,6 +46,19 @@ class ConnectionTest extends TestCase
         );
     }
 
+    public function testRefererIsSet(): void
+    {
+        $connection = $this->createConnection();
+        $this->assertArrayNotHasKey('referer', $connection->createRequest('GET', '/')->getHeaders());
+
+        $connection = $this->createConnection();
+        $connection->setReferer('https://example.com');
+        $this->assertEquals(
+            'https://example.com',
+            $connection->createRequest('GET', '/')->getHeaders()['referer'],
+        );
+    }
+
     public function testTokenExpires(): void
     {
         $connection = new Connection();
